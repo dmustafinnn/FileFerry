@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }))
 // app.use(require("./routes/record"));
 // require("dotenv").config({ path: "./config.env" });
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 const db = require('./db')
 db.on('error', console.error.bind(console, 'MongoDB connection error:'))
