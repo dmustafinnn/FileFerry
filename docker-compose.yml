@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  fileferry-primary:
+    container_name: fileferry-primary
+    image: mongo
+    volumes:
+      - ./scripts/rs-init.sh:/scripts/rs-init.sh
+      - ./scripts/db-init.js:/scripts/db-init.js
+    networks:
+      - fileferry-network
+    ports:
+      - 27017:27017
+    depends_on:
+      - fileferry-secondary-1
+      - fileferry-secondary-2
+    links:
+      - fileferry-secondary-1
+      - fileferry-secondary-2
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
+
+  fileferry-secondary-1:
+    container_name: fileferry-secondary-1
+    image: mongo
+    networks:
+      - fileferry-network
+    ports:
+      - 27018:27017
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
+  fileferry-secondary-2:
+    container_name: fileferry-secondary-2
+    image: mongo
+    networks:
+      - fileferry-network
+    ports:
+      - 27019:27017
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
+
+networks:
+  fileferry-network:
+    driver: bridge
