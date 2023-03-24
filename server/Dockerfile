@@ -3,8 +3,8 @@
 FROM node:latest
 
 # Create App Directory
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+RUN mkdir -p /usr/api
+WORKDIR /usr/api
 
 # Install Dependencies
 COPY package*.json ./

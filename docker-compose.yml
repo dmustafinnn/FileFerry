@@ -1,55 +1,65 @@
-version: '3'
+version: '3.8'
+name: 'fileferry'
 services:
   ff-server:
     build:
-      context: ./server
-      dockerfile: Dockerfile
+        context: ./server
+        dockerfile: Dockerfile
     image: fileferry-server
-    container_name: fileferry-node-server
-    command: /usr/src/app/node_modules/.bin/nodemon server.js
+    container_name: fileferry-server
+    command: /usr/api/node_modules/.bin/nodemon server.js
     volumes:
-      - ./server/:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./server/:/usr/api
+      - /usr/api/node_modules
     ports:
       - "5000:5000"
     depends_on:
-      - ff-mongo
+      - ff-db
     env_file: ./server/.env
     environment:
       - NODE_ENV=development
     networks:
-      - ff-network
-  ff-mongo:
+      ff-network:
+        aliases:
+          - ff-server
+  ff-db:
     image: mongo
+    container_name: fileferry-db
     volumes:
       - data-volume:/data/db
     ports:
       - "27017:27017"
     networks:
-      - ff-network
+      ff-network:
+        aliases:
+          - ff-db
   ff-client:
     build:
       context: ./client
       dockerfile: Dockerfile
     image: fileferry-client
-    container_name: fileferry-react-client
+    container_name: fileferry-client
     command: npm start
     volumes:
       - ./client/:/usr/app
       - /usr/app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true # enable hot reloading
     depends_on:
       - ff-server
     ports:
       - "3000:3000"
     networks:
-      - ff-network
+      ff-network:
+        aliases:
+          - ff-client
 
 networks:
-    ff-network:
-        driver: bridge
+  ff-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
 
 volumes:
-    data-volume:
-    node_modules:
-    web-root:
-      driver: local
+  data-volume:
+  node_modules:
