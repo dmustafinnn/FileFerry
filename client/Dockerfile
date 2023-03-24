@@ -4,7 +4,7 @@
 FROM node:latest
 
 # Working directory be app
-WORKDIR /usr/src/app
+WORKDIR /usr/app
 
 COPY package*.json ./
 
