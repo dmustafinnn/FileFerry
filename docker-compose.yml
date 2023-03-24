@@ -1,44 +1,55 @@
-version: '3.8'
-
+version: '3'
 services:
-  fileferry-primary:
-    container_name: fileferry-primary
+  ff-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: fileferry-server
+    container_name: fileferry-node-server
+    command: /usr/src/app/node_modules/.bin/nodemon server.js
+    volumes:
+      - ./server/:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "5000:5000"
+    depends_on:
+      - ff-mongo
+    env_file: ./server/.env
+    environment:
+      - NODE_ENV=development
+    networks:
+      - ff-network
+  ff-mongo:
     image: mongo
     volumes:
-      - ./scripts/rs-init.sh:/scripts/rs-init.sh
-      - ./scripts/db-init.js:/scripts/db-init.js
-    networks:
-      - fileferry-network
+      - data-volume:/data/db
     ports:
-      - 27017:27017
+      - "27017:27017"
+    networks:
+      - ff-network
+  ff-client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: fileferry-client
+    container_name: fileferry-react-client
+    command: npm start
+    volumes:
+      - ./client/:/usr/app
+      - /usr/app/node_modules
     depends_on:
-      - fileferry-secondary-1
-      - fileferry-secondary-2
-    links:
-      - fileferry-secondary-1
-      - fileferry-secondary-2
-    restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
-
-  fileferry-secondary-1:
-    container_name: fileferry-secondary-1
-    image: mongo
-    networks:
-      - fileferry-network
+      - ff-server
     ports:
-      - 27018:27017
-    restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
-  fileferry-secondary-2:
-    container_name: fileferry-secondary-2
-    image: mongo
+      - "3000:3000"
     networks:
-      - fileferry-network
-    ports:
-      - 27019:27017
-    restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
+      - ff-network
 
 networks:
-  fileferry-network:
-    driver: bridge
+    ff-network:
+        driver: bridge
+
+volumes:
+    data-volume:
+    node_modules:
+    web-root:
+      driver: local
