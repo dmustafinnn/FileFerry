@@ -10,7 +10,7 @@ services:
     command: /usr/api/node_modules/.bin/nodemon server.js
     volumes:
       - ./server/:/usr/api
-      - /usr/api/node_modules
+      - ./server/node_modules/:/usr/api/node_modules
     ports:
       - "5000:5000"
     depends_on:
@@ -42,7 +42,7 @@ services:
     command: npm start
     volumes:
       - ./client/:/usr/app
-      - /usr/app/node_modules
+      - ./client/node_modules/:/usr/app/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true # enable hot reloading
     depends_on:
