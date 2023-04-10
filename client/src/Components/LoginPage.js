@@ -2,7 +2,7 @@ import { Avatar, Button, Grid, Link, Paper, TextField } from "@mui/material";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import React from "react";
+import React, { useEffect } from "react";
 import axios_instance from "../config";
 import { useNavigate } from "react-router-dom";
 
@@ -10,6 +10,13 @@ import { useNavigate } from "react-router-dom";
 // https://github.com/mui/material-ui/blob/v5.11.15/docs/data/material/getting-started/templates/sign-in-side/SignInSide.js
 const LoginPage = () => {
 	const navigate = useNavigate();
+
+	useEffect(() => {
+		// TODO: Call logout api and invalidate the jwt token
+		 
+		localStorage.clear();
+	});
+
 	const handleSubmit = (event) => {
 		event.preventDefault();
 		const data = new FormData(event.currentTarget);

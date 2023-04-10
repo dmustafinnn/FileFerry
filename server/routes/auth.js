@@ -38,11 +38,4 @@ router.get("/", (req, res) => {
 	res.status(200).json({ test: "test" });
 });
 
-// TODO: change the apis to validate tokens like the below example
-// const authenticateToken = require('./middleware/authenticateToken');
-// router.get('/data', authenticateToken, (req, res) => {
-//   const data = 'This is some protected data!';
-//   res.send(data);
-// });
-
 module.exports = router;
