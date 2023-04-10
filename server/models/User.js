@@ -15,7 +15,8 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: true
-    }
+    },
+    whitelist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 
 module.exports = mongoose.model('User', userSchema);
