@@ -1,31 +1,35 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import reportWebVitals from './reportWebVitals';
-import './index.css';
-import {
-    createBrowserRouter,
-    RouterProvider,
-} from "react-router-dom";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import reportWebVitals from "./reportWebVitals";
+import "./index.css";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./Components/LoginPage";
 import Dashboard from "./Components/Dashboard";
+import isAuthenticated from "./utils/isAuthenticated";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 
-const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <LoginPage />,
-    },
-    {
-        path: "/dashboard",
-        element: <Dashboard />,
-    },
-]);
+const PrivateRoute = ({ path, element }) => {
+	return isAuthenticated() ? (
+		element
+	) : (
+		<Navigate to="/login" replace state={{ from: path }} />
+	);
+};
+
+const AppRoutes = () => (
+	<Routes>
+		<Route path="/login" element={<LoginPage />} />
+		<Route path="/" element={<PrivateRoute element={<Dashboard />} />} />
+	</Routes>
+);
 
 root.render(
-  <React.StrictMode>
-      <RouterProvider router={router} />
-  </React.StrictMode>
+	<React.StrictMode>
+		<BrowserRouter>
+			<AppRoutes />
+		</BrowserRouter>
+	</React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
