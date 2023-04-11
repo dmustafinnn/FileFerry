@@ -7,7 +7,7 @@ Developers:
 - Sasanka Kosuru ([@ksasanka11](https://github.com/ksasanka11))
 - Anahita Dinesh ([@anahita20](https://github.com/anahita20))
 
-## Getting Started
+## Project Setup
 1. Make sure you have Docker Desktop installed on your computer.
 2. From the project root directory, run the following command to build the Docker containers:
     ```
@@ -24,6 +24,9 @@ Developers:
     | Backend | fileferry-server | 5000 |
     | Database | fileferry-db | 27017 |
 
+## Usage
+Once you have the project set up and running, you can access the FileFerry application by navigating to `http://localhost:3000` in your web browser. From there, you can use the platform to upload, download, and share files with others.
+
 ## Milestones
 You can view the latest milestones and their progress here: [FileFerry-Milestones](https://docs.google.com/spreadsheets/d/e/2PACX-1vR92wZZyTgUng5knBInbccaXzKSGQ3wc3oqaCNuSMUT2Qdu1iKcwMNZL-YHT5jovbqIwdHiElc-_sPf/pubhtml?gid=0&single=true)
 - Login page UI and APIs
@@ -31,6 +34,3 @@ You can view the latest milestones and their progress here: [FileFerry-Milestone
 - Securing APIs with auth tokens
 - Dashboard UI
 - APIs to add and delete users from whitelist
-
-## Usage
-Once you have the project set up and running, you can access the FileFerry application by navigating to `http://localhost:3000` in your web browser. From there, you can use the platform to upload, download, and share files with others.
