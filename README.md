@@ -24,5 +24,13 @@ Developers:
     | Backend | fileferry-server | 5000 |
     | Database | fileferry-db | 27017 |
 
+## Milestones
+You can view the latest milestones and their progress here: [FileFerry-Milestones](https://docs.google.com/spreadsheets/d/e/2PACX-1vR92wZZyTgUng5knBInbccaXzKSGQ3wc3oqaCNuSMUT2Qdu1iKcwMNZL-YHT5jovbqIwdHiElc-_sPf/pubhtml?gid=0&single=true)
+- Login page UI and APIs
+- User registeration APIs
+- Securing APIs with auth tokens
+- Dashboard UI
+- APIs to add and delete users from whitelist
+
 ## Usage
 Once you have the project set up and running, you can access the FileFerry application by navigating to `http://localhost:3000` in your web browser. From there, you can use the platform to upload, download, and share files with others.
