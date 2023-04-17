@@ -15,6 +15,9 @@ const permissionSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     },
+    token: {
+        type: String
+    },
     status: {
         type: String,
         enum: ['own', 'pending', 'accepted', 'rejected'],
