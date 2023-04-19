@@ -99,9 +99,10 @@ const LoginPage = () => {
 						</Button>
 						<Grid container>
 							<Grid item>
-								<Link href="#" variant="body2">
-									{"Don't have an account? Sign Up"}
-								</Link>
+							<Button variant="text"
+                                onClick={()  => {
+                                    navigate("/registration")
+                                }}>Don't have an account? Sign Up</Button>
 							</Grid>
 						</Grid>
 					</Box>
