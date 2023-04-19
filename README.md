@@ -7,6 +7,8 @@ Developers:
 - Sasanka Kosuru ([@ksasanka11](https://github.com/ksasanka11))
 - Anahita Dinesh ([@anahita20](https://github.com/anahita20))
 
+API Documentation: https://documenter.getpostman.com/view/9930451/2s93XyUiBq
+
 ## Project Setup
 1. Make sure you have Docker Desktop installed on your computer.
 2. From the project root directory, run the following command to build the Docker containers:
