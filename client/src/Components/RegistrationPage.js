@@ -5,28 +5,55 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import React from "react";
 import axios_instance from "../config";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+
+
+
 
 const RegistrationPage = () => {
     const navigate = useNavigate();
+
+     // Define state variables for password and confirm password fields
+     const [password, setPassword] = useState('');
+     const [confirmPassword, setConfirmPassword] = useState('');
+     const [validPassword, setValidPassword] = useState(false);
+ 
     const handleSubmit = (event) => {
         event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        axios_instance.post('/auth/registration', {
-            firstname: data.get('name'),
-            username: data.get('email'),
-            password: data.get('password'),
-            confirmPassword: data.get('confirmPassword')
-        }).then(response => {
-            if(response.data.success === true){
-                navigate('/dashboard');
-                localStorage.setItem('user',JSON.stringify(response.data));
-            }
-        })
+        validatePassword();
+        console.log(validPassword)
+        // password === confirmPassword
+        if(password === confirmPassword) {
+            const data = new FormData(event.currentTarget);
+            axios_instance.post('/auth/register', {
+                name: data.get('name'),
+                email: data.get('email'),
+                username: data.get('email'),
+                password: data.get('password')
+            }).then(response => {
+                if(response.data.success === true){
+                    navigate('/dashboard');
+                    localStorage.setItem('user',JSON.stringify(response.data));
+                }
+            })
+        }
     };
 
-    const validatePasswords = e => {
-        
-    }
+    // Define event handlers for password and confirm password fields
+    const handlePasswordChange = (e) => {
+        setPassword(e.target.value);
+    };
+
+    const handleConfirmPasswordChange = (e) => {
+        setConfirmPassword(e.target.value);
+    };
+
+    // Define function to validate the confirm password field
+    const validatePassword = () => {
+        setValidPassword(password === confirmPassword);
+    };
+
+
 
     return (
         <Grid container component="main" sx={{ height: '100vh', padding: 0 }}>
@@ -89,6 +116,8 @@ const RegistrationPage = () => {
                             type="password"
                             id="password"
                             autoComplete="new-password"
+                            value={password}
+                            onChange={handlePasswordChange}
                         />
                         <TextField
                             margin="normal"
@@ -98,6 +127,8 @@ const RegistrationPage = () => {
                             label="Confirm Password"
                             type="password"
                             id="confirmPassword"
+                            value={confirmPassword}
+                            onChange={handleConfirmPasswordChange}
                         />
                         <Button
                             type="submit"

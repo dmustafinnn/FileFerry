@@ -9,7 +9,7 @@ const generateToken = require("../utils/generateToken");
 // Registration route
 router.post("/register", (req, res) => {
 	const { username, name, email, password } = req.body;
-
+	console.log('in backend')
 	// Hash the password before saving it
 	bcrypt.genSalt(10, (err, salt) => {
 		bcrypt.hash(password, salt, (err, hash) => {
