@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { permissionSchema } = require('./Permission');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
@@ -16,6 +17,7 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
+    permissions: [permissionSchema],
     whitelist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 

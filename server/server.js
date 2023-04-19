@@ -5,13 +5,30 @@ const passport = require('passport');
 const bcrypt = require('bcryptjs');
 var cors = require('cors')
 const LocalStrategy = require('passport-local').Strategy;
+const connection = require("./db/index");
 
-const User = require('./models/User');
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/users');
+connection();
+
+let bucket;
+(() => {
+    mongoose.connection.on("connected", () => {
+        console.log('Creating bucket');
+        bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+            bucketName: "filesBucket",
+        });
+    });
+})();
 
 // Set up app
 const app = express();
+
+// Start server
+app.listen(5000, () => {
+    console.log('Server started on port 5000');
+});
+
+// Data models
+const User = require('./models/User');
 
 // Set up middleware
 app.use(express.json());
@@ -35,11 +52,21 @@ var corsOptions = {
 
 app.options('*', cors(corsOptions))
 
+// Routes
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const fileRoutes = require('./routes/file');
+
+// Set up routes
+app.use('/auth', authRoutes);
+app.use('/users', userRoutes);
+app.use('/file', fileRoutes);
+
 // Set up Passport
-passport.use(new LocalStrategy((username, password, done) => {
-    User.findOne({ username })
+passport.use(new LocalStrategy((email, password, done) => {
+    User.findOne({ email })
         .then(user => {
-            if (!user) return done(null, false, { message: 'Incorrect username.' });
+            if (!user) return done(null, false, { message: 'Incorrect email.' });
             bcrypt.compare(password, user.password, (err, res) => {
                 if (err) throw err;
                 if (res) {
@@ -59,24 +86,3 @@ passport.deserializeUser((id, done) => {
         .then(user => done(null, user))
         .catch(err => done(err));
 });
-
-// Set up routes
-app.use('/auth', authRoutes);
-app.use('/users', userRoutes);
-
-// Connect to MongoDB
-const local_db = "mongodb://ff-db:27017/fileferry";
-const db_url = local_db || process.env.ATLAS_DB;
-mongoose
-    .connect(db_url, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => {
-        console.log('Connected to MongoDB');
-        // Start server
-        app.listen(5000, () => {
-            console.log('Server started on port 5000');
-            console.log(`URL: ${db_url}`);
-        });
-    })
-    .catch(e => {
-        console.error('Connection error', e.message)
-    });
