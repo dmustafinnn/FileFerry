@@ -14,11 +14,38 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import Fab from '@mui/material/Fab';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Button from '@mui/material/Button';
+import ArticleIcon from '@mui/icons-material/Article';
+
+
 
 import BottomNavigation from '@mui/material/BottomNavigation';
 import {useState} from "react";
 
-
+const cards = [
+  {
+    id: 1,
+    title: "Card 1",
+    description: "This is card 1",
+    date: "10/02/2023",
+  },
+  {
+    id: 2,
+    title: "Card 2",
+    description: "This is card 2",
+    date: "15/02/2023",
+  },
+  {
+    id: 3,
+    title: "Card 3",
+    description: "This is card 3",
+    date: "10/03/2023",
+  },
+];
 
 
 const Search = styled('div')(({ theme }) => ({
@@ -61,6 +88,44 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
+function CardList(props) {
+  // Assuming that the "cards" prop is an array of objects
+  const cards = props.cards;
+
+  return (
+    <div style={{display:"flex"}}>
+      {cards.map((card) => (
+    <Card sx={{ width: 345, margin: 5 }}>
+    
+    <CardMedia
+      sx={{ height: 140 }}
+      title="doc"
+    >
+      <ArticleIcon sx={{width: 90, height: 100, position: "relative", left: 120, top: 40}}></ArticleIcon>
+    </CardMedia>
+    
+    <CardContent>
+      <Typography gutterBottom variant="h5" component="div">
+        {card.title}
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        {card.description}
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        {card.date}
+      </Typography>
+    </CardContent>
+    
+    <CardActions>
+      <Button size="small">Share</Button>
+      <Button size="small">Download</Button>
+    </CardActions>
+    
+  </Card>
+  ))}
+  </div>
+);
+}
 
 
 
@@ -204,6 +269,14 @@ export default function Dashboard() {
           </Box>
         </Toolbar>
       </AppBar>
+
+    <Box sx={{ flexGrow: 1 }} />
+    <Box sx={{ display: {  md: 'flex' } }}>
+    
+     <CardList cards={cards} />;
+
+    </Box>
+
 
       <BottomNavigation sx={{  position:'fixed', bottom:30,right:50 ,width: 130 }} >
         <div sx={{ '& > :not(style)': { m: 1 } }}>
