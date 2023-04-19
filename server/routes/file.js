@@ -19,6 +19,16 @@ const transporter = nodemailer.createTransport({
 	},
 });
 
+// Use the following for debugging emails
+// const transporter = nodemailer.createTransport({
+//     host: 'localhost',
+//     port: 1025,
+//     auth: {
+//         user: 'project.1',
+//         pass: 'secret.1'
+//     }
+// });
+
 // Upload a file
 router.post("/upload", auth, upload.single("file"), async (req, res) => {
 	try {
@@ -55,33 +65,21 @@ router.post("/upload", auth, upload.single("file"), async (req, res) => {
 // Get all files of a user
 router.get("/", auth, async (req, res) => {
 	try {
-		const userFiles = await User.findById(req.user.id)
+		const userFiles = await User.findById(req.user.id, "permissions")
 			.where("permissions.status")
 			.in(["own", "accepted"])
+			.populate("permissions.fileId", "filename createdAt length")
+			.populate("permissions.userId", "username")
 			.catch((err) => res.status(500).json({ message: err.message }));
 		const files = userFiles?.permissions;
-		const fileDetails = [];
-		for (let i in files) {
-			let fileDetail = await File.findById(files[i].fileId);
-			fileDetails.push({
-				filename: fileDetail.filename,
-				length: fileDetail.length,
-				owner: await User.findById(
-					fileDetail.user.toString(),
-					"username email"
-				),
-				status: files[i].status,
-				fileId: fileDetail._id,
-			});
-		}
-		res.json({ fileDetails });
+		res.json({ files });
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({ message: err.message });
 	}
 });
 
-// Endpoint to share a file with another user
+// Share a file with another user
 router.post("/:id/share", auth, async (req, res) => {
 	try {
 		const file = await File.findById(req.params.id).populate("user", "email");
@@ -103,6 +101,7 @@ router.post("/:id/share", auth, async (req, res) => {
 			sharedUserId: recipient._id,
 			fileId: file._id,
 		});
+
 		if (existingPermission) {
 			return res
 				.status(400)
@@ -145,7 +144,7 @@ router.get("/:fileId/permissions/:permissionId/accept", async (req, res) => {
 		const permission = await Permission.findById(req.params.permissionId)
 			.populate({ path: "sharedUserId", select: "email" })
 			.populate({ path: "fileId", select: "filename" });
-        
+
 		if (!permission || permission.token !== req.query.token) {
 			return res.status(404).json({ message: "Permission not found" });
 		}
