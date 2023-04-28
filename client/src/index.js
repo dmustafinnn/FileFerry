@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./Components/LoginPage";
 import Dashboard from "./Components/Dashboard";
 import isAuthenticated from "./utils/isAuthenticated";
+import RegistrationPage from "./Components/RegistrationPage";
 import UploadFile from "./Components/UploadFile";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
@@ -22,6 +23,7 @@ const AppRoutes = () => (
 	<Routes>
 		<Route path="/login" element={<LoginPage />} />
 		<Route path="/" element={<PrivateRoute element={<Dashboard />} />} />
+		<Route path="/registration" element={<RegistrationPage />} />
 		<Route path="/files" element={<PrivateRoute element={<UploadFile />} />} />
 	</Routes>
 );
