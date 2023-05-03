@@ -1,5 +1,5 @@
 import * as React from "react";
-import {styled, alpha} from "@mui/material/styles";
+import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -17,246 +17,329 @@ import CardMedia from "@mui/material/CardMedia";
 import Button from "@mui/material/Button";
 import ArticleIcon from "@mui/icons-material/Article";
 import BottomNavigation from "@mui/material/BottomNavigation";
-import {useMemo, useState} from "react";
+import { useMemo, useState } from "react";
 import axios_instance from "../config";
-import {Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid} from "@mui/material";
-import {useDropzone} from 'react-dropzone';
+import {
+	Autocomplete,
+	Container,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+	Grid, TextField,
+} from "@mui/material";
+import { useDropzone } from "react-dropzone";
 
 const baseStyle = {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    padding: '20px',
-    borderWidth: 2,
-    borderRadius: 2,
-    borderColor: '#eeeeee',
-    borderStyle: 'dashed',
-    backgroundColor: '#fafafa',
-    color: '#bdbdbd',
-    outline: 'none',
-    transition: 'border .24s ease-in-out'
+	flex: 1,
+	display: "flex",
+	flexDirection: "column",
+	alignItems: "center",
+	padding: "20px",
+	borderWidth: 2,
+	borderRadius: 2,
+	borderColor: "#eeeeee",
+	borderStyle: "dashed",
+	backgroundColor: "#fafafa",
+	color: "#bdbdbd",
+	outline: "none",
+	transition: "border .24s ease-in-out",
 };
 
 const focusedStyle = {
-    borderColor: '#2196f3'
+	borderColor: "#2196f3",
 };
 
 const acceptStyle = {
-    borderColor: '#00e676'
+	borderColor: "#00e676",
 };
 
 const rejectStyle = {
-    borderColor: '#ff1744'
+	borderColor: "#ff1744",
 };
 
-const Search = styled("div")(({theme}) => ({
-    position: "relative",
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    "&:hover": {
-        backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
-    marginRight: theme.spacing(2),
-    marginLeft: 0,
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-        marginLeft: theme.spacing(3),
-        width: "auto",
-    },
+const Search = styled("div")(({ theme }) => ({
+	position: "relative",
+	borderRadius: theme.shape.borderRadius,
+	backgroundColor: alpha(theme.palette.common.white, 0.15),
+	"&:hover": {
+		backgroundColor: alpha(theme.palette.common.white, 0.25),
+	},
+	marginRight: theme.spacing(2),
+	marginLeft: 0,
+	width: "100%",
+	[theme.breakpoints.up("sm")]: {
+		marginLeft: theme.spacing(3),
+		width: "auto",
+	},
 }));
 
-const SearchIconWrapper = styled("div")(({theme}) => ({
-    padding: theme.spacing(0, 2),
-    height: "100%",
-    position: "absolute",
-    pointerEvents: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+const SearchIconWrapper = styled("div")(({ theme }) => ({
+	padding: theme.spacing(0, 2),
+	height: "100%",
+	position: "absolute",
+	pointerEvents: "none",
+	display: "flex",
+	alignItems: "center",
+	justifyContent: "center",
 }));
 
-const StyledInputBase = styled(InputBase)(({theme}) => ({
-    color: "inherit",
-    "& .MuiInputBase-input": {
-        padding: theme.spacing(1, 1, 1, 0),
-        // vertical padding + font size from searchIcon
-        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-        transition: theme.transitions.create("width"),
-        width: "100%",
-        [theme.breakpoints.up("md")]: {
-            width: "20ch",
-        },
-    },
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+	color: "inherit",
+	"& .MuiInputBase-input": {
+		padding: theme.spacing(1, 1, 1, 0),
+		// vertical padding + font size from searchIcon
+		paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+		transition: theme.transitions.create("width"),
+		width: "100%",
+		[theme.breakpoints.up("md")]: {
+			width: "20ch",
+		},
+	},
 }));
 
 export default function Dashboard() {
-    const [fileData, setFileData] = useState([]);
-    React.useEffect(() => {
-        axios_instance.get("/file").then((data) => {
-            setFileData(data.data.files);
-        });
-    }, []);
+	const [fileData, setFileData] = useState([]);
+	const [shareEmail, setShareEmail] = useState("");
+	const [showUploaddialog, setShowUploadDialog] = useState(false);
+	const [showShareDialog, setShowShareDialog] = useState(false);
+    const [selectedCard, setselectedCard] = useState(null);
 
-    const [showUploaddialog, setShowUploadDialog] = useState(false);
+	React.useEffect(() => {
+		axios_instance.get("/file").then((data) => {
+			setFileData(data.data.files);
+		});
+	}, []);
 
-    const removeAll = () => {
-        acceptedFiles.length = 0
-        acceptedFiles.splice(0, acceptedFiles.length)
-        inputRef.current.value = ''
-    }
+	const removeAll = () => {
+		acceptedFiles.length = 0;
+		acceptedFiles.splice(0, acceptedFiles.length);
+		inputRef.current.value = "";
+	};
 
-    const {
-        acceptedFiles,
-        getRootProps,
-        getInputProps,
-        isFocused,
-        isDragAccept,
-        isDragReject,
-        inputRef
-    } = useDropzone();
+	const {
+		acceptedFiles,
+		getRootProps,
+		getInputProps,
+		isFocused,
+		isDragAccept,
+		isDragReject,
+		inputRef,
+	} = useDropzone();
 
-    const uploadStyle = useMemo(() => ({
-        ...baseStyle,
-        ...(isFocused ? focusedStyle : {}),
-        ...(isDragAccept ? acceptStyle : {}),
-        ...(isDragReject ? rejectStyle : {})
-    }), [
-        isFocused,
-        isDragAccept,
-        isDragReject
-    ]);
+	const uploadStyle = useMemo(
+		() => ({
+			...baseStyle,
+			...(isFocused ? focusedStyle : {}),
+			...(isDragAccept ? acceptStyle : {}),
+			...(isDragReject ? rejectStyle : {}),
+		}),
+		[isFocused, isDragAccept, isDragReject]
+	);
 
-    const handleFileUpload = async () => {
-        const formData = new FormData();
-        formData.append('file', acceptedFiles[0]);
+	const handleFileUpload = async () => {
+		const formData = new FormData();
+		formData.append("file", acceptedFiles[0]);
 
-        try {
-            await axios_instance.post('/file/upload', formData);
-            handleUploadClose();
-        } catch (error) {
-            console.log(error);
-            alert('Error uploading file!');
+		try {
+			await axios_instance.post("/file/upload", formData);
+			handleUploadClose();
+		} catch (error) {
+			console.log(error);
+			alert("Error uploading file!");
+		}
+	};
+
+	const handleUploadClose = () => {
+		setShowUploadDialog(false);
+		removeAll();
+		axios_instance.get("/file/").then((data) => {
+			setFileData(data.data.files);
+		});
+	};
+
+	const handleShare = async () => {
+        if(selectedCard) {
+            try {
+                await axios_instance.post(`/file/${selectedCard?.fileId?._id}/share`, {
+                    email: shareEmail
+                });
+                handleShareClose();
+            } catch (error) {
+                console.log(error);
+                alert("Error uploading file!");
+            }
         }
     };
 
-    const handleUploadClose = () => {
-        setShowUploadDialog(false);
-        removeAll();
-        axios_instance.get("/file").then((data) => {
-            setFileData(data.data.files);
-        });
+	const handleShareClose = () => {
+        setShowShareDialog(false);
+        setselectedCard(null);
     };
 
-    return (
-        <Box sx={{flexGrow: 1}}>
-            <AppBar position="static">
-                <Toolbar>
-                    <IconButton
-                        size="large"
-                        edge="start"
-                        color="inherit"
-                        aria-label="open drawer"
-                        sx={{mr: 2}}
-                    >
-                        <MenuIcon/>
-                    </IconButton>
-                    <Typography
-                        variant="h5"
-                        noWrap
-                        component="div"
-                        sx={{display: {xs: "none", sm: "block"}}}
-                    >
-                        Dashboard
-                    </Typography>
-                    <Search>
-                        <SearchIconWrapper>
-                            <SearchIcon/>
-                        </SearchIconWrapper>
-                        <StyledInputBase
-                            placeholder="Search…"
-                            inputProps={{"aria-label": "search"}}
-                        />
-                    </Search>
-                    <Box sx={{flexGrow: 1}}/>
-                </Toolbar>
-            </AppBar>
+	return (
+		<Box sx={{ flexGrow: 1 }}>
+			<AppBar position="static">
+				<Toolbar>
+					<IconButton
+						size="large"
+						edge="start"
+						color="inherit"
+						aria-label="open drawer"
+						sx={{ mr: 2 }}
+					>
+						<MenuIcon />
+					</IconButton>
+					<Typography
+						variant="h5"
+						noWrap
+						component="div"
+						sx={{ display: { xs: "none", sm: "block" } }}
+					>
+						Dashboard
+					</Typography>
+					<Search>
+						<SearchIconWrapper>
+							<SearchIcon />
+						</SearchIconWrapper>
+						<StyledInputBase
+							placeholder="Search…"
+							inputProps={{ "aria-label": "search" }}
+						/>
+					</Search>
+					<Box sx={{ flexGrow: 1 }} />
+				</Toolbar>
+			</AppBar>
 
-            <Container sx={{ py: 8 }} maxWidth="md">
-                {/* End hero unit */}
-                <Grid container spacing={4}>
-                    {fileData && fileData.map((card) => (
-                        <Grid item key={card} xs={12} sm={6} md={4}>
-                            <Card
-                                sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-                            >
-                                <CardMedia sx={{height: 140}} title="doc">
-                                    <ArticleIcon
-                                        sx={{
-                                            width: 90,
-                                            height: 100,
-                                            position: "relative",
-                                            left: 120,
-                                            top: 40,
-                                        }}
-                                    ></ArticleIcon>
-                                </CardMedia>
-                                <CardContent sx={{ flexGrow: 1 }}>
-                                    <Typography gutterBottom variant="h6" component="div">
-                                        {card.fileId.filename}
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {card.userId.username}
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {card.fileId.createdAt}
-                                    </Typography>
-                                </CardContent>
+			<Container sx={{ py: 8 }} maxWidth="md">
+				<Grid container spacing={4}>
+					{fileData &&
+						fileData.map((card) => (
+							<Grid item key={card.fileId._id} xs={12} sm={6} md={4}>
+								<Card
+									sx={{
+										height: "100%",
+										display: "flex",
+										flexDirection: "column",
+									}}
+								>
+									<CardMedia sx={{ height: 140 }} title="doc">
+										<ArticleIcon
+											sx={{
+												width: 90,
+												height: 100,
+												position: "relative",
+												left: 120,
+												top: 40,
+											}}
+										></ArticleIcon>
+									</CardMedia>
+									<CardContent sx={{ flexGrow: 1 }}>
+										<Typography gutterBottom variant="h6" component="div">
+											{card.fileId.filename}
+										</Typography>
+										<Typography variant="body2" color="text.secondary">
+											{card.userId.username}
+										</Typography>
+										<Typography variant="body2" color="text.secondary">
+											{card.fileId.createdAt}
+										</Typography>
+									</CardContent>
 
-                                <CardActions>
-                                    {JSON.parse(localStorage.user)._doc._id === card.userId._id && <Button size="small">Share</Button>}
-                                    <Button size="small">Download</Button>
-                                </CardActions>
-                            </Card>
-                        </Grid>
-                    ))}
-                </Grid>
-            </Container>
+									<CardActions>
+										{JSON.parse(localStorage.user)._doc._id ===
+											card.userId._id && (
+											<Button
+												size="small"
+												onClick={() => {
+													setShowShareDialog(true);
+                                                    setselectedCard(card);
+												}}
+											>
+												Share
+											</Button>
+										)}
+										<Button size="small">Download</Button>
+									</CardActions>
+								</Card>
+							</Grid>
+						))}
+				</Grid>
+			</Container>
 
-            <BottomNavigation
-                sx={{position: "fixed", bottom: 30, right: 50, width: 130}}
-            >
-                <div sx={{"& > :not(style)": {m: 1}}}>
-                    <Fab variant="extended" onClick={() => {
-                        setShowUploadDialog(true);
-                    }}><FileUploadIcon sx={{mr: 1}}/>
-                        Upload
-                    </Fab>
-                </div>
-            </BottomNavigation>
+			<BottomNavigation
+				sx={{ position: "fixed", bottom: 30, right: 50, width: 130 }}
+			>
+				<div sx={{ "& > :not(style)": { m: 1 } }}>
+					<Fab
+						variant="extended"
+						onClick={() => {
+							setShowUploadDialog(true);
+						}}
+					>
+						<FileUploadIcon sx={{ mr: 1 }} />
+						Upload
+					</Fab>
+				</div>
+			</BottomNavigation>
 
-            <Dialog open={showUploaddialog} sx={{textAlign: "center"}}>
-                <DialogTitle sx={{
-                    padding: 2,
-                    fontWeight: "bold",
-                    color: "#1976d2",
-                }}>{"Upload File"}</DialogTitle>
-                <DialogContent>
-                    <div className="container">
-                        <div {...getRootProps({uploadStyle})}>
-                            <input {...getInputProps()} />
-                            {acceptedFiles.length > 0 ? (<p>{acceptedFiles[0].name}</p>) : (
-                                <p>Click to browse files</p>)}
-                        </div>
-                    </div>
+			<Dialog open={showUploaddialog} sx={{ textAlign: "center" }}>
+				<DialogTitle
+					sx={{
+						padding: 2,
+						fontWeight: "bold",
+						color: "#1976d2",
+					}}
+				>
+					{"Upload File"}
+				</DialogTitle>
+				<DialogContent >
+					<div className="container">
+						<div {...getRootProps({ uploadStyle })}>
+							<input {...getInputProps()} />
+							{acceptedFiles.length > 0 ? (
+								<p>{acceptedFiles[0].name}</p>
+							) : (
+								<p>Click to browse files</p>
+							)}
+						</div>
+					</div>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleUploadClose}>Close</Button>
+					<Button onClick={handleFileUpload} autoFocus>
+						Upload
+					</Button>
+				</DialogActions>
+			</Dialog>
+
+			<Dialog open={showShareDialog} sx={{ textAlign: "center" }}>
+				<DialogTitle
+					sx={{
+						padding: 2,
+						fontWeight: "bold",
+						color: "#1976d2",
+					}}
+				>
+					{"Share File"}
+				</DialogTitle>
+				<DialogContent>
+                <TextField
+                    id="share-textbox"
+                    sx={{ width: 300 }}
+                    value={shareEmail}
+                    onChange={(event) => {
+                        setShareEmail(event.target.value);
+                    }}
+                    />
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleUploadClose}>Close</Button>
-                    <Button onClick={handleFileUpload} autoFocus>
-                        Upload
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </Box>
-    );
+				<DialogActions>
+					<Button onClick={handleShareClose}>Close</Button>
+					<Button onClick={handleShare} autoFocus>
+						Share
+					</Button>
+				</DialogActions>
+			</Dialog>
+		</Box>
+	);
 }
