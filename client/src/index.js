@@ -2,11 +2,13 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import reportWebVitals from "./reportWebVitals";
 import "./index.css";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import LoginPage from "./Components/LoginPage";
 import Dashboard from "./Components/Dashboard";
+import Header from "./Components/Header";
 import isAuthenticated from "./utils/isAuthenticated";
 import RegistrationPage from "./Components/RegistrationPage";
+import Whitelist from "./Components/Whitelist";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -18,13 +20,21 @@ const PrivateRoute = ({ path, element }) => {
 	);
 };
 
-const AppRoutes = () => (
-	<Routes>
-		<Route path="/login" element={<LoginPage />} />
-		<Route path="/" element={<PrivateRoute element={<Dashboard />} />} />
-		<Route path="/registration" element={<RegistrationPage />} />
-	</Routes>
-);
+const AppRoutes = () => {
+	const location = useLocation();
+
+	return (
+		<>
+			{location.pathname !== '/login' && <Header />}
+			< Routes >
+				<Route path="/login" element={<LoginPage />} />
+				<Route path="/" element={<PrivateRoute element={<Dashboard />} />} />
+				<Route path="/registration" element={<RegistrationPage />} />
+				<Route path="/whitelist" element={<PrivateRoute element={<Whitelist />} />} />
+			</Routes >
+		</>
+	)
+};
 
 root.render(
 	<React.StrictMode>

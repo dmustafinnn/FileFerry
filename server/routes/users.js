@@ -12,12 +12,12 @@ router.get("/", (req, res) => {
 		.catch((err) => res.status(500).json({ message: err.message }));
 });
 
-// Get a single user
-router.get("/:id", (req, res) => {
-	User.findById(req.params.id)
-		.then((user) => res.json(user))
-		.catch((err) => res.status(500).json({ message: err.message }));
-});
+// // Get a single user
+// router.get("/:id", (req, res) => {
+// 	User.findById(req.params.id)
+// 		.then((user) => res.json(user))
+// 		.catch((err) => res.status(500).json({ message: err.message }));
+// });
 
 // Update a user
 router.patch("/:id", (req, res) => {
@@ -31,6 +31,20 @@ router.delete("/:id", (req, res) => {
 	User.findByIdAndDelete(req.params.id)
 		.then((user) => res.json(user))
 		.catch((err) => res.status(500).json({ message: err.message }));
+});
+
+// Get a user's whitelist
+router.get("/whitelist", authenticateToken, async (req, res) => {
+	try {
+		const currentUserWhitelist = await User.findById(req.user.id).populate('whitelist', 'name email').select('whitelist').catch((err) =>
+			res.status(500).json({ message: err.message })
+		);
+
+		res.status(200).json(currentUserWhitelist);
+	} catch (err) {
+		console.error(err);
+		res.status(500).send({ message: "Server error" });
+	}
 });
 
 // Add a user to whitelist
