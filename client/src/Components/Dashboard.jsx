@@ -139,39 +139,7 @@ export default function Dashboard() {
 
 	return (
 		<Box sx={{ flexGrow: 1 }}>
-			{/* <AppBar position="static">
-				<Toolbar>
-					<IconButton
-						size="large"
-						edge="start"
-						color="inherit"
-						aria-label="open drawer"
-						sx={{ mr: 2 }}
-					>
-						<MenuIcon />
-					</IconButton>
-					<Typography
-						variant="h5"
-						noWrap
-						component="div"
-						sx={{ display: { xs: "none", sm: "block" } }}
-					>
-						Dashboard
-					</Typography>
-					<Search>
-						<SearchIconWrapper>
-							<SearchIcon />
-						</SearchIconWrapper>
-						<StyledInputBase
-							placeholder="Search…"
-							inputProps={{ "aria-label": "search" }}
-						/>
-					</Search>
-					<Box sx={{ flexGrow: 1 }} />
-				</Toolbar>
-			</AppBar> */}
-
-			<Container sx={{ py: 8 }} maxWidth="md">
+			<Container sx={{ py: 10 }}>
 				<Grid container spacing={4}>
 					{fileData &&
 						fileData.map((card) => (

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	AppBar,
 	Toolbar,
@@ -19,7 +19,7 @@ import {
 } from "@mui/icons-material";
 import { ListAlt as WhitelistIcon } from "@mui/icons-material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import {Link, useLocation} from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { alpha, styled } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
@@ -66,16 +66,34 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 	},
 }));
 
+const pathNames = {
+	"/": "Dashboard",
+	"/whitelist": "Whitelist",
+	"/profile": "Profile",
+	"/signout": "Signout",
+};
+
 const Header = () => {
 	const [drawerOpen, setDrawerOpen] = useState(false);
+	const [name, setName] = useState("");
 	const location = useLocation();
+
+	useEffect(() => {
+		if (location.pathname) {
+			setName(pathNames[location.pathname]);
+		}
+	}, [location.pathname]);
+
 	const toggleDrawer = () => {
 		setDrawerOpen(!drawerOpen);
 	};
 
 	return (
 		<div>
-			<AppBar position="absolute">
+			<AppBar
+				position="fixed"
+				sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+			>
 				<Toolbar
 					sx={{
 						pr: "24px", // keep right padding when drawer closed
@@ -89,7 +107,7 @@ const Header = () => {
 					>
 						<MenuIcon />
 					</IconButton>
-					<Typography variant="h6">Dashboard</Typography>
+					<Typography variant="h6">{name}</Typography>
 					<Search>
 						<SearchIconWrapper>
 							<SearchIcon />
@@ -103,10 +121,11 @@ const Header = () => {
 			</AppBar>
 			<Drawer
 				anchor="left"
+				variant="permanent"
 				sx={{
 					width: drawerWidth,
 					flexShrink: 0,
-					"& .MuiDrawer-paper": {
+					[`& .MuiDrawer-paper`]: {
 						width: drawerWidth,
 						boxSizing: "border-box",
 					},
@@ -129,26 +148,52 @@ const Header = () => {
 				<Divider />
 				<List>
 					<List>
-						<ListItemButton component={Link} to="/" onClick={toggleDrawer} selected={location.pathname === '/'}>
+						<ListItemButton
+							component={Link}
+							to="/"
+							onClick={() => {
+								// setName("Dashboard");
+								toggleDrawer();
+							}}
+							selected={location.pathname === "/"}
+						>
 							<ListItemIcon>
 								<DashboardIcon />
 							</ListItemIcon>
 							<ListItemText primary="Dashboard" />
 						</ListItemButton>
-						<ListItemButton component={Link} to="/whitelist" onClick={toggleDrawer} selected={location.pathname === '/whitelist'}>
+						<ListItemButton
+							component={Link}
+							to="/whitelist"
+							onClick={() => {
+								// setName("Whitelist");
+								toggleDrawer();
+							}}
+							selected={location.pathname === "/whitelist"}
+						>
 							<ListItemIcon>
 								<WhitelistIcon />
 							</ListItemIcon>
 							<ListItemText primary="Whitelist" />
 						</ListItemButton>
 						<Divider />
-						<ListItemButton component={Link} to="/profile" onClick={toggleDrawer} selected={location.pathname === '/profile'}>
+						<ListItemButton
+							component={Link}
+							to="/profile"
+							onClick={toggleDrawer}
+							selected={location.pathname === "/profile"}
+						>
 							<ListItemIcon>
 								<ProfileIcon />
 							</ListItemIcon>
 							<ListItemText primary="Profile" />
 						</ListItemButton>
-						<ListItemButton component={Link} to="/signout" onClick={toggleDrawer} selected={location.pathname === '/signout'}>
+						<ListItemButton
+							component={Link}
+							to="/signout"
+							onClick={toggleDrawer}
+							selected={location.pathname === "/signout"}
+						>
 							<ListItemIcon>
 								<SignOutIcon />
 							</ListItemIcon>
