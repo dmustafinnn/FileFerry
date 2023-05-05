@@ -1,6 +1,7 @@
 const multer = require("multer");
 const { GridFsStorage } = require("multer-gridfs-storage");
 const getDB = require('../utils/getDB');
+const {ObjectId} = require("mongodb");
 
 // Create storage engine
 function upload() {
@@ -9,7 +10,9 @@ function upload() {
         url: mongodbUrl,
         file: (req, file) => {
             return new Promise((resolve, _reject) => {
+                let randomFileId = new ObjectId();
                 const fileInfo = {
+                    _id: randomFileId,
                     filename: file.originalname,
                     bucketName: "filesBucket",
                 };

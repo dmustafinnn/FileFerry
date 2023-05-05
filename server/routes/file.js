@@ -32,7 +32,9 @@ const transporter = nodemailer.createTransport({
 // Upload a file
 router.post("/upload", auth, upload.single("file"), async (req, res) => {
 	try {
+		const fileId = req.file.id;
 		const file = new File({
+			fileBucketId: fileId,
 			filename: req.file.originalname,
 			contentType: req.file.mimetype,
 			length: req.file.size,
