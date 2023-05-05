@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 var cors = require('cors')
 const LocalStrategy = require('passport-local').Strategy;
 const connection = require("./db/index");
+const auth = require("./middleware/authenticateToken");
 
 connection();
 
@@ -29,6 +30,9 @@ app.listen(5000, () => {
 
 // Data models
 const User = require('./models/User');
+const File = require("./models/File");
+const {Permission} = require("./models/Permission");
+
 
 // Set up middleware
 app.use(express.json());
@@ -85,4 +89,51 @@ passport.deserializeUser((id, done) => {
     User.findById(id)
         .then(user => done(null, user))
         .catch(err => done(err));
+});
+
+// Download a file by id
+app.get("/download/file/:fileId", auth, async (req, res) => {
+    try {
+        const { fileId } = req.params;
+
+        const fileData = await File.findById(fileId).populate("user", "email");
+
+        if (!fileData) {
+            return res.status(404).json({ message: "File not found" });
+        }
+
+        // check if the logged in user has permission to download the file
+        const permission = await Permission.find({fileId:fileData._id, userId:req.user.id}).where("status").in(["own", "accepted"]);
+
+        if(!permission || permission.length === 0){
+            return res
+                .status(401)
+                .json({ message: "You do not have permission to download this file" });
+        }
+
+        const fileBucketId = fileData.fileBucketId;
+
+        // Check if file exists
+        const file = await bucket
+            .find({ _id: new mongoose.Types.ObjectId(fileBucketId) })
+            .toArray();
+        if (file.length === 0) {
+            return res.status(404).json({ error: { text: "File not found" } });
+        }
+
+        // set the headers
+        res.set("Content-Type", file[0].contentType);
+        res.set("Content-Disposition", `attachment; filename=${file[0].filename}`);
+
+        // create a stream to read from the bucket
+        const downloadStream = bucket.openDownloadStream(
+            new mongoose.Types.ObjectId(fileBucketId)
+        );
+
+        // pipe the stream to the response
+        downloadStream.pipe(res);
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({ error: { text: `Unable to download file`, error } });
+    }
 });
