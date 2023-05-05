@@ -70,6 +70,7 @@ const pathNames = {
 	"/": "Dashboard",
 	"/whitelist": "Whitelist",
 	"/profile": "Profile",
+	"/update": "Update Profile",
 	"/signout": "Signout",
 };
 
@@ -187,6 +188,17 @@ const Header = () => {
 								<ProfileIcon />
 							</ListItemIcon>
 							<ListItemText primary="Profile" />
+						</ListItemButton>
+						<ListItemButton
+							component={Link}
+							to="/updatePage"
+							onClick={toggleDrawer}
+							selected={location.pathname === "updatePage"}
+						>
+							<ListItemIcon>
+								<ProfileIcon />
+							</ListItemIcon>
+							<ListItemText primary="Update Profile" />
 						</ListItemButton>
 						<ListItemButton
 							component={Link}

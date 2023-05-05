@@ -8,53 +8,30 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 
-
-
-const RegistrationPage = () => {
+const UpdatePage = ({ userId }) => {
     const navigate = useNavigate();
 
-     // Define state variables for password and confirm password fields
-     const [password, setPassword] = useState('');
-     const [confirmPassword, setConfirmPassword] = useState('');
-     const [validPassword, setValidPassword] = useState(false);
- 
-    const handleSubmit = (event) => {
+    const handleNameChange = (event) => {
+        setName(event.target.value);
+      };
+    
+      const handleEmailChange = (event) => {
+        setEmail(event.target.value);
+      };
+
+
+      const handleUpdateUser = async (event) => {
         event.preventDefault();
-        validatePassword();
-        console.log(validPassword)
-        // password === confirmPassword
-        if(password === confirmPassword) {
-            const data = new FormData(event.currentTarget);
-            axios_instance.post('/auth/register', {
-                username: data.get('email'),
-                name: data.get('name'),
-                email: data.get('email'),
-                password: data.get('password')
-            }).then(response => {
-                if(response.data.success === true){
-                    navigate('/dashboard');
-                    localStorage.setItem('user',JSON.stringify(response.data));
-                }
-            })
+        try {
+          const response = await axios.put(`/users/${userId}`, { username, name, email, password});
+          console.log(response.data); // log updated user data
+        } catch (error) {
+          console.error(error);
         }
     };
 
-    // Define event handlers for password and confirm password fields
-    const handlePasswordChange = (e) => {
-        setPassword(e.target.value);
-    };
 
-    const handleConfirmPasswordChange = (e) => {
-        setConfirmPassword(e.target.value);
-    };
-
-    // Define function to validate the confirm password field
-    const validatePassword = () => {
-        setValidPassword(password === confirmPassword);
-    };
-
-
-    return (
+  return (
         <Grid container component="main" sx={{ height: '100vh', padding: 0 }}>
             <Grid
                 item
@@ -84,7 +61,7 @@ const RegistrationPage = () => {
                         <LockOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Sign in
+                        Update Information
                     </Typography>
                     <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
                         <TextField
@@ -111,7 +88,7 @@ const RegistrationPage = () => {
                             required
                             fullWidth
                             name="password"
-                            label="Password"
+                            label="New Password"
                             type="password"
                             id="password"
                             autoComplete="new-password"
@@ -121,28 +98,22 @@ const RegistrationPage = () => {
                             required
                             fullWidth
                             name="conformPassword"
-                            label="Confirm Password"
+                            label="Confirm New Password"
                             type="password"
                             id="confirmPassword"
                         />
                         <Button type="submit" 
                         variant="contained"
                             sx={{ mt: 3, mb: 2 }}>
-                            Sign Up
+                            Update Information
                         </Button>
                         <Grid container>
-                            <Grid item>
-                                <Button variant="text"
-                                onClick={()  => {
-                                    navigate("/login")
-                                }}>Already have an account? Sign in</Button>
-                            </Grid>
                         </Grid>
                     </Box>
                 </Box>
             </Grid>
         </Grid>
-    );
-};
+  );
+}
 
-export default RegistrationPage;
+export default UpdatePage;
