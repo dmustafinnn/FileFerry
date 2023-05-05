@@ -82,6 +82,7 @@ router.get("/", auth, async (req, res) => {
 // Share a file with another user
 router.post("/:id/share", auth, async (req, res) => {
 	try {
+
 		const file = await File.findById(req.params.id).populate("user", "email");
 
 		if (!file) {
@@ -95,6 +96,7 @@ router.post("/:id/share", auth, async (req, res) => {
 
 		const recipient = await User.findOne({ email: req.body.email });
 		if (!recipient) {
+			console.log("Recipient Not found")
 			return res.status(404).json({ message: "Recipient not found" });
 		}
 		const existingPermission = await Permission.findOne({
