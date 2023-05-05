@@ -112,6 +112,25 @@ router.post("/:id/share", auth, async (req, res) => {
 				.json({ message: "File already shared with this user" });
 		}
 
+		// sender is registered as a whitelisted user
+		if (recipient?.whitelist.includes(file.user._id)){
+			const permission = new Permission({
+				sharedUserId: recipient._id,
+				fileId: file._id,
+				userId: file.user._id,
+				status: "accepted",
+			});
+			await permission.save();
+
+			await User.findByIdAndUpdate(permission.sharedUserId._id.toString(), {
+				$push: {
+					permissions: permission,
+				},
+			});
+
+			res.json({ message: "File shared successfully" });
+		}
+
 		const token = crypto.randomBytes(20).toString("hex");
 		const permission = new Permission({
 			sharedUserId: recipient._id,
