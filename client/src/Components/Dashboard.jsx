@@ -58,47 +58,6 @@ const rejectStyle = {
 };
 
 
-function CardList(props) {
-  // Assuming that the "cards" prop is an array of objects
-  const cards = props.cards;
-
-  return (
-    <div style={{display:"flex"}}>
-      {cards.map((card) => (
-    <Card sx={{ width: 345, margin: 5 }}>
-    
-    <CardMedia
-      sx={{ height: 140 }}
-      title="doc"
-    >
-      <ArticleIcon sx={{width: 90, height: 100, position: "relative", left: 120, top: 40}}></ArticleIcon>
-    </CardMedia>
-    
-    <CardContent>
-      <Typography gutterBottom variant="h5" component="div">
-        {card.title}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {card.description}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {card.date}
-      </Typography>
-    </CardContent>
-    
-    <CardActions>
-      <Button size="small">Share</Button>
-      <Button size="small">Download</Button>
-    </CardActions>
-    
-  </Card>
-  ))}
-  </div>
-);
-}
-
-
-
 export default function Dashboard() {
 	const [fileData, setFileData] = useState([]);
 	const [shareEmail, setShareEmail] = useState("");
