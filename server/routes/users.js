@@ -65,7 +65,7 @@ router.post("/whitelist/add", authenticateToken, async (req, res) => {
             return res.status(409).send({message: "User already in whitelist"});
         }
 
-        const updatedUser = await User.findById(req.user.id, "whitelist").catch((err) =>
+        const updatedUser = await User.findById(req.user.id).populate('whitelist', 'name email').select('whitelist').catch((err) =>
             res.status(500).json({message: err.message})
         );
 
@@ -108,7 +108,7 @@ router.post("/whitelist/delete", authenticateToken, async (req, res) => {
         }
         await currentUser.save();
 
-        const updatedUser = await User.findById(req.user.id, "whitelist").catch((err) =>
+        const updatedUser = await User.findById(req.user.id).populate('whitelist', 'name email').select('whitelist').catch((err) =>
             res.status(500).json({message: err.message})
         );
 

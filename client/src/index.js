@@ -25,7 +25,7 @@ const AppRoutes = () => {
 
 	return (
 		<>
-			{location.pathname !== '/login' && location.pathname !== '/registration' && <Header />}
+			{isAuthenticated() && location.pathname !== '/login' && location.pathname !== '/registration' && <Header />}
 			< Routes >
 				<Route path="/login" element={<LoginPage />} />
 				<Route path="/" element={<PrivateRoute element={<Dashboard />} />} />

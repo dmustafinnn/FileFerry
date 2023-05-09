@@ -2,11 +2,11 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import {
 	Button,
-	Container, Paper, Table, TableBody,
+	Container, Dialog, DialogActions, DialogContent, DialogTitle, Paper, Table, TableBody,
 	TableCell,
 	TableContainer,
 	TableHead,
-	TableRow,
+	TableRow, TextField,
 } from "@mui/material";
 import axios_instance from "../config";
 import AddIcon from '@mui/icons-material/Add';
@@ -22,6 +22,7 @@ import Checkbox from '@mui/material/Checkbox';
 import Tooltip from '@mui/material/Tooltip';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
+import { useState } from "react";
 
 function descendingComparator(a, b, orderBy) {
 	if (b[orderBy] < a[orderBy]) {
@@ -70,12 +71,8 @@ const Whitelist = () => {
 	return (
 		<Box>
 			<Container sx={{ py: 10 }}>
-				<Button variant="outlined" startIcon={<AddIcon />}>
-					Add User
-				</Button>
-				<div style={{ height: 400, width: "100%" }}>
-					<WhiteListTable />
-				</div>
+
+				<WhiteListTable />
 			</Container>
 		</Box>
 	);
@@ -199,11 +196,13 @@ const WhiteListTable = (props) => {
 	const [page, setPage] = React.useState(0);
 	const [rowsPerPage, setRowsPerPage] = React.useState(5);
 	const [whitelistUsers, setWhiteListUsers] = React.useState([]);
+	const [addEmail, setAddEmail] = useState('');
+	const [showAddDialog, setShowAddDialog] = useState(false);
 
 	React.useEffect(() => {
 		axios_instance.get("/users/whitelist").then((response) => {
 			const data = response.data;
-			if(data.whitelist)
+			if (data.whitelist)
 				setWhiteListUsers(data.whitelist);
 		});
 	}, []);
@@ -264,99 +263,158 @@ const WhiteListTable = (props) => {
 				page * rowsPerPage,
 				page * rowsPerPage + rowsPerPage,
 			),
-		[whitelistUsers,order, orderBy, page, rowsPerPage],
+		[whitelistUsers, order, orderBy, page, rowsPerPage],
 	);
-	
+
 	const handleDelete = () => {
 		console.log(selected);
 		axios_instance.post("/users/whitelist/delete", {
 			ids: selected
 		}).then((response) => {
 			const data = response.data;
-			if(data.user && data.user.whitelist)
+			if (data.user && data.user.whitelist)
 				setWhiteListUsers(data.user.whitelist);
 			setSelected([]);
 		});
 	}
 
-	return (
-		<Box sx={{ width: '100%' }}>
-			<Paper sx={{ width: '100%', mb: 2 }}>
-				<WhiteListTableToolbar numSelected={selected.length} handleDelete={handleDelete} />
-				<TableContainer>
-					<Table
-						sx={{ minWidth: 750 }}
-						aria-labelledby="tableTitle"
-						size={'medium'}
-					>
-						<WhiteListTableHead
-							numSelected={selected.length}
-							order={order}
-							orderBy={orderBy}
-							onSelectAllClick={handleSelectAllClick}
-							onRequestSort={handleRequestSort}
-							rowCount={whitelistUsers.length}
-						/>
-						<TableBody>
-							{visibleRows.map((row, index) => {
-								const isItemSelected = isSelected(row._id);
-								const labelId = `enhanced-table-checkbox-${index}`;
+	const handleAdd = async () => {
+		if (addEmail.length > 0) {
+			try {
+				await axios_instance.post(`/users/whitelist/add`, {
+					email: addEmail
+				}).then((response) => {
+					const data = response.data;
+					if (data.user && data.user.whitelist)
+						setWhiteListUsers(data.user.whitelist);
+					handleAddClose();
+				});
+			} catch (error) {
+				console.log(error);
+				alert("Error adding user to whitelist!");
+			}
+		}
+	};
 
-								return (
-									<TableRow
-										hover
-										onClick={(event) => handleClick(event, row._id)}
-										role="checkbox"
-										aria-checked={isItemSelected}
-										tabIndex={-1}
-										key={row._id}
-										selected={isItemSelected}
-										sx={{ cursor: 'pointer' }}
-									>
-										<TableCell padding="checkbox">
-											<Checkbox
-												color="primary"
-												checked={isItemSelected}
-												inputProps={{
-													'aria-labelledby': labelId,
-												}}
-											/>
-										</TableCell>
-										<TableCell
-											component="th"
-											id={labelId}
-											scope="row"
-											padding="none"
+	const handleAddClose = () => {
+		setShowAddDialog(false);
+		setAddEmail("");
+	};
+
+	return (
+		<>
+			<Button variant="outlined" startIcon={<AddIcon />} onClick={() => setShowAddDialog(true)}>
+				Add User
+			</Button>
+			<div style={{ height: 400, width: "100%" }}>
+				<Box sx={{ width: '100%' }}>
+					<Paper sx={{ width: '100%', mb: 2 }}>
+						<WhiteListTableToolbar numSelected={selected.length} handleDelete={handleDelete} />
+						<TableContainer>
+							<Table
+								sx={{ minWidth: 750 }}
+								aria-labelledby="tableTitle"
+								size={'medium'}
+							>
+								<WhiteListTableHead
+									numSelected={selected.length}
+									order={order}
+									orderBy={orderBy}
+									onSelectAllClick={handleSelectAllClick}
+									onRequestSort={handleRequestSort}
+									rowCount={whitelistUsers.length}
+								/>
+								<TableBody>
+									{visibleRows.map((row, index) => {
+										const isItemSelected = isSelected(row._id);
+										const labelId = `enhanced-table-checkbox-${index}`;
+
+										return (
+											<TableRow
+												hover
+												onClick={(event) => handleClick(event, row._id)}
+												role="checkbox"
+												aria-checked={isItemSelected}
+												tabIndex={-1}
+												key={row._id}
+												selected={isItemSelected}
+												sx={{ cursor: 'pointer' }}
+											>
+												<TableCell padding="checkbox">
+													<Checkbox
+														color="primary"
+														checked={isItemSelected}
+														inputProps={{
+															'aria-labelledby': labelId,
+														}}
+													/>
+												</TableCell>
+												<TableCell
+													component="th"
+													id={labelId}
+													scope="row"
+													padding="none"
+												>
+													{row.name}
+												</TableCell>
+												<TableCell>{row.email}</TableCell>
+											</TableRow>
+										);
+									})}
+									{emptyRows > 0 && (
+										<TableRow
+											style={{
+												height: (53) * emptyRows,
+											}}
 										>
-											{row.name}
-										</TableCell>
-										<TableCell>{row.email}</TableCell>
-									</TableRow>
-								);
-							})}
-							{emptyRows > 0 && (
-								<TableRow
-									style={{
-										height: (53) * emptyRows,
-									}}
-								>
-									<TableCell colSpan={6} />
-								</TableRow>
-							)}
-						</TableBody>
-					</Table>
-				</TableContainer>
-				<TablePagination
-					rowsPerPageOptions={[5, 10, 25]}
-					component="div"
-					count={whitelistUsers.length}
-					rowsPerPage={rowsPerPage}
-					page={page}
-					onPageChange={handleChangePage}
-					onRowsPerPageChange={handleChangeRowsPerPage}
-				/>
-			</Paper>
-		</Box>
+											<TableCell colSpan={6} />
+										</TableRow>
+									)}
+								</TableBody>
+							</Table>
+						</TableContainer>
+						<TablePagination
+							rowsPerPageOptions={[5, 10, 25]}
+							component="div"
+							count={whitelistUsers.length}
+							rowsPerPage={rowsPerPage}
+							page={page}
+							onPageChange={handleChangePage}
+							onRowsPerPageChange={handleChangeRowsPerPage}
+						/>
+					</Paper>
+				</Box>
+			</div>
+
+			<Dialog open={showAddDialog} sx={{ textAlign: "center" }}>
+				<DialogTitle
+					sx={{
+						padding: 2,
+						fontWeight: "bold",
+						color: "#1976d2",
+					}}
+				>
+					{"Add user to whitelist"}
+				</DialogTitle>
+				<DialogContent>
+					<TextField
+						id="add-textbox"
+						sx={{ width: 300 }}
+						placeholder={'Enter email'}
+						value={addEmail}
+						onChange={(event) => {
+							setAddEmail(event.target.value);
+						}}
+					/>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleAddClose}>Close</Button>
+					<Button onClick={handleAdd} autoFocus>
+						Add
+					</Button>
+				</DialogActions>
+			</Dialog>
+		</>
 	);
 }
 
