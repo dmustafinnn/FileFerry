@@ -103,7 +103,12 @@ app.get("/download/file/:fileId", auth, async (req, res) => {
         }
 
         // check if the logged in user has permission to download the file
-        const permission = await Permission.find({fileId:fileData._id, userId:req.user.id}).where("status").in(["own", "accepted"]);
+        let permission = await Permission.find({fileId:fileData._id, userId:req.user.id}).where("status").in(["own"]);
+
+        if(permission.length == 0){
+            permission = await Permission.find({fileId:fileData._id, sharedUserId:req.user.id}).where("status").in(["accepted"]);
+        }
+
 
         if(!permission || permission.length === 0){
             return res
