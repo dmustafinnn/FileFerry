@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useMemo, useState } from "react";
+import {useEffect, useMemo, useState} from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
@@ -14,6 +14,9 @@ import BottomNavigation from "@mui/material/BottomNavigation";
 import axios_instance from "../config";
 import { Container, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, TextField, } from "@mui/material";
 import { useDropzone } from "react-dropzone";
+import SearchIcon from "@mui/icons-material/Search";
+import {alpha, styled} from "@mui/material/styles";
+import InputBase from "@mui/material/InputBase";
 
 const baseStyle = {
     flex: 1,
@@ -43,6 +46,46 @@ const rejectStyle = {
     borderColor: "#ff1744",
 };
 
+const Search = styled("div")(({ theme }) => ({
+    position: "relative",
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
+    "&:hover": {
+        backgroundColor: alpha(theme.palette.common.white, 0.25),
+    },
+    marginRight: theme.spacing(2),
+    marginLeft: 0,
+    width: "100%",
+    [theme.breakpoints.up("sm")]: {
+        marginLeft: theme.spacing(3),
+        width: "auto",
+    },
+}));
+
+const SearchIconWrapper = styled("div")(({ theme }) => ({
+    padding: theme.spacing(0, 2),
+    height: "100%",
+    position: "absolute",
+    pointerEvents: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+    color: "inherit",
+    "& .MuiInputBase-input": {
+        padding: theme.spacing(1, 1, 1, 0),
+        // vertical padding + font size from searchIcon
+        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+        transition: theme.transitions.create("width"),
+        width: "100%",
+        [theme.breakpoints.up("md")]: {
+            width: "20ch",
+        },
+    },
+}));
+
 
 export default function Dashboard() {
     const [fileData, setFileData] = useState([]);
@@ -50,12 +93,17 @@ export default function Dashboard() {
     const [showUploaddialog, setShowUploadDialog] = useState(false);
     const [showShareDialog, setShowShareDialog] = useState(false);
     const [selectedCard, setselectedCard] = useState(null);
+    const [searchText, setSearchText] = useState('');
 
     React.useEffect(() => {
+        fetchAllFiles();
+    }, []);
+
+    const fetchAllFiles = async () => {
         axios_instance.get("/file").then((data) => {
             setFileData(data.data.files);
         });
-    }, []);
+    };
 
     const removeAll = () => {
         acceptedFiles.length = 0;
@@ -146,6 +194,25 @@ export default function Dashboard() {
         setShareEmail("");
     };
 
+    useEffect( () => {
+        if (searchText.length > 0) {
+            searchFiles();
+        }else{
+            fetchAllFiles();
+        }
+    }, [searchText]);
+
+    const searchFiles = async () => {
+        try {
+            await axios_instance.get(`/file/search?text=${searchText}`).then((response) => {
+                setFileData(response.data.files);
+            });
+        } catch (error) {
+            console.log(error);
+            alert("Error downloading file!");
+        }
+    }
+
     return (
         <Box sx={{ flexGrow: 1 }}>
             <Container sx={{ py: 10 }}>
@@ -159,6 +226,18 @@ export default function Dashboard() {
                         {/*<Typography variant="h5" marginBottom={2}>*/}
                         {/*    My Files*/}
                         {/*</Typography>*/}
+                        <Search>
+                            <SearchIconWrapper>
+                                <SearchIcon />
+                            </SearchIconWrapper>
+                            <StyledInputBase
+                                placeholder="Search…"
+                                inputProps={{ "aria-label": "search" }}
+                                onChange={(event) => {
+                                    setSearchText(event.target.value);
+                                }}
+                            />
+                        </Search>
                     </Grid>
                 </Grid>
                 <Divider />
