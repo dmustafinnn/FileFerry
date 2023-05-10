@@ -1,5 +1,5 @@
 import * as React from "react";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
@@ -12,8 +12,11 @@ import Button from "@mui/material/Button";
 import ArticleIcon from "@mui/icons-material/Article";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import axios_instance from "../config";
-import {Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField,} from "@mui/material";
-import {useDropzone} from "react-dropzone";
+import { Container, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, TextField, } from "@mui/material";
+import { useDropzone } from "react-dropzone";
+import SearchIcon from "@mui/icons-material/Search";
+import {alpha, styled} from "@mui/material/styles";
+import InputBase from "@mui/material/InputBase";
 
 const baseStyle = {
     flex: 1,
@@ -43,6 +46,46 @@ const rejectStyle = {
     borderColor: "#ff1744",
 };
 
+const Search = styled("div")(({ theme }) => ({
+    position: "relative",
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
+    "&:hover": {
+        backgroundColor: alpha(theme.palette.common.white, 0.25),
+    },
+    marginRight: theme.spacing(2),
+    marginLeft: 0,
+    width: "100%",
+    [theme.breakpoints.up("sm")]: {
+        marginLeft: theme.spacing(3),
+        width: "auto",
+    },
+}));
+
+const SearchIconWrapper = styled("div")(({ theme }) => ({
+    padding: theme.spacing(0, 2),
+    height: "100%",
+    position: "absolute",
+    pointerEvents: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+    color: "inherit",
+    "& .MuiInputBase-input": {
+        padding: theme.spacing(1, 1, 1, 0),
+        // vertical padding + font size from searchIcon
+        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+        transition: theme.transitions.create("width"),
+        width: "100%",
+        [theme.breakpoints.up("md")]: {
+            width: "20ch",
+        },
+    },
+}));
+
 
 export default function Dashboard() {
     const [fileData, setFileData] = useState([]);
@@ -50,12 +93,17 @@ export default function Dashboard() {
     const [showUploaddialog, setShowUploadDialog] = useState(false);
     const [showShareDialog, setShowShareDialog] = useState(false);
     const [selectedCard, setselectedCard] = useState(null);
+    const [searchText, setSearchText] = useState('');
 
     React.useEffect(() => {
+        fetchAllFiles();
+    }, []);
+
+    const fetchAllFiles = async () => {
         axios_instance.get("/file").then((data) => {
             setFileData(data.data.files);
         });
-    }, []);
+    };
 
     const removeAll = () => {
         acceptedFiles.length = 0;
@@ -71,7 +119,9 @@ export default function Dashboard() {
         isDragAccept,
         isDragReject,
         inputRef,
-    } = useDropzone();
+    } = useDropzone({
+        maxFiles: 1
+    });
 
     const uploadStyle = useMemo(
         () => ({
@@ -121,11 +171,11 @@ export default function Dashboard() {
     const handleDownload = async (card) => {
         if (card) {
             try {
-                const response = await axios_instance.get(`/download/file/${card?.fileId?._id}`, {responseType: 'blob'});
+                const response = await axios_instance.get(`/download/file/${card?.fileId?._id}`, { responseType: 'blob' });
 
                 // Create a download link and trigger a click event to download the file
                 const downloadLink = document.createElement('a');
-                downloadLink.href = window.URL.createObjectURL(new Blob([response.data], {type: response.headers['content-type']}));
+                downloadLink.href = window.URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type'] }));
                 downloadLink.setAttribute('download', card.fileId.filename + '.' + response.headers['content-type'].split('/')[1]);
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
@@ -144,10 +194,54 @@ export default function Dashboard() {
         setShareEmail("");
     };
 
+    useEffect( () => {
+        if (searchText.length > 0) {
+            searchFiles();
+        }else{
+            fetchAllFiles();
+        }
+    }, [searchText]);
+
+    const searchFiles = async () => {
+        try {
+            await axios_instance.get(`/file/search?text=${searchText}`).then((response) => {
+                setFileData(response.data.files);
+            });
+        } catch (error) {
+            console.log(error);
+            alert("Error downloading file!");
+        }
+    }
+
     return (
-        <Box sx={{flexGrow: 1}}>
-            <Container sx={{py: 10}}>
-                <Grid container spacing={4}>
+        <Box sx={{ flexGrow: 1 }}>
+            <Container sx={{ py: 10 }}>
+                <Grid container justifyContent="space-between" spacing={2}>
+                    <Grid item>
+                        <Typography variant="h5" marginBottom={2}>
+                            My Files
+                        </Typography>
+                    </Grid>
+                    <Grid item>
+                        {/*<Typography variant="h5" marginBottom={2}>*/}
+                        {/*    My Files*/}
+                        {/*</Typography>*/}
+                        <Search>
+                            <SearchIconWrapper>
+                                <SearchIcon />
+                            </SearchIconWrapper>
+                            <StyledInputBase
+                                placeholder="Search…"
+                                inputProps={{ "aria-label": "search" }}
+                                onChange={(event) => {
+                                    setSearchText(event.target.value);
+                                }}
+                            />
+                        </Search>
+                    </Grid>
+                </Grid>
+                <Divider />
+                <Grid sx={{ marginTop: 1 }} container spacing={4}>
                     {fileData &&
                         fileData.map((card) => (
                             <Grid item key={card.fileId._id} xs={12} sm={6} md={4}>
@@ -158,7 +252,7 @@ export default function Dashboard() {
                                         flexDirection: "column",
                                     }}
                                 >
-                                    <CardMedia sx={{height: 140}} title="doc">
+                                    <CardMedia sx={{ height: 140 }} title="doc">
                                         <ArticleIcon
                                             sx={{
                                                 width: 90,
@@ -169,7 +263,7 @@ export default function Dashboard() {
                                             }}
                                         ></ArticleIcon>
                                     </CardMedia>
-                                    <CardContent sx={{flexGrow: 1}}>
+                                    <CardContent sx={{ flexGrow: 1 }}>
                                         <Typography gutterBottom variant="h6" component="div">
                                             {card.fileId.filename}
                                         </Typography>
@@ -203,22 +297,22 @@ export default function Dashboard() {
             </Container>
 
             <BottomNavigation
-                sx={{position: "fixed", bottom: 30, right: 50, width: 130}}
+                sx={{ position: "fixed", bottom: 30, right: 50, width: 130 }}
             >
-                <div sx={{"& > :not(style)": {m: 1}}}>
+                <div sx={{ "& > :not(style)": { m: 1 } }}>
                     <Fab
                         variant="extended"
                         onClick={() => {
                             setShowUploadDialog(true);
                         }}
                     >
-                        <FileUploadIcon sx={{mr: 1}}/>
+                        <FileUploadIcon sx={{ mr: 1 }} />
                         Upload
                     </Fab>
                 </div>
             </BottomNavigation>
 
-            <Dialog open={showUploaddialog} sx={{textAlign: "center"}}>
+            <Dialog open={showUploaddialog} sx={{ textAlign: "center" }}>
                 <DialogTitle
                     sx={{
                         padding: 2,
@@ -230,12 +324,12 @@ export default function Dashboard() {
                 </DialogTitle>
                 <DialogContent>
                     <div className="container">
-                        <div {...getRootProps({uploadStyle})}>
+                        <div {...getRootProps({ className: 'dropzone' })} style={uploadStyle}>
                             <input {...getInputProps()} />
                             {acceptedFiles.length > 0 ? (
                                 <p>{acceptedFiles[0].name}</p>
                             ) : (
-                                <p>Click to browse files</p>
+                                <p>Drag 'n' drop some files here, or click to select files</p>
                             )}
                         </div>
                     </div>
@@ -248,7 +342,7 @@ export default function Dashboard() {
                 </DialogActions>
             </Dialog>
 
-            <Dialog open={showShareDialog} sx={{textAlign: "center"}}>
+            <Dialog open={showShareDialog} sx={{ textAlign: "center" }}>
                 <DialogTitle
                     sx={{
                         padding: 2,
@@ -261,7 +355,8 @@ export default function Dashboard() {
                 <DialogContent>
                     <TextField
                         id="share-textbox"
-                        sx={{width: 300}}
+                        sx={{ width: 300 }}
+                        placeholder={'Enter email'}
                         value={shareEmail}
                         onChange={(event) => {
                             setShareEmail(event.target.value);
