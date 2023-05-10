@@ -62,8 +62,8 @@ const LoginPage = () => {
 						alignItems: "center",
 					}}
 				>
-					<img src={'/logo.png'} alt={``}/>
-					<img src={'/name.png'} alt={``}/>
+					<img src={'/logo.png'} alt={``} style={{maxWidth: '100px'}}/>
+					<img src={'/name.png'} alt={``} style={{maxWidth: '150px'}}/>
 
 					<Typography component="h1" variant="h5">
 						Sign in
