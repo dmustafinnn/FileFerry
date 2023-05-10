@@ -12,11 +12,25 @@ import Button from "@mui/material/Button";
 import ArticleIcon from "@mui/icons-material/Article";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import axios_instance from "../config";
-import { Container, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, TextField, } from "@mui/material";
+import {
+    Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    Grid,
+    IconButton,
+    TextField,
+} from "@mui/material";
 import { useDropzone } from "react-dropzone";
 import SearchIcon from "@mui/icons-material/Search";
 import {alpha, styled} from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
+import ShareIcon from '@mui/icons-material/Share';
+import DownloadIcon from '@mui/icons-material/Download';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
 const baseStyle = {
     flex: 1,
@@ -94,6 +108,7 @@ export default function Dashboard() {
     const [showShareDialog, setShowShareDialog] = useState(false);
     const [selectedCard, setselectedCard] = useState(null);
     const [searchText, setSearchText] = useState('');
+    const [showDeleteWarning, setShowDeleteWarning] = useState(false);
 
     React.useEffect(() => {
         fetchAllFiles();
@@ -168,6 +183,31 @@ export default function Dashboard() {
         }
     };
 
+    const handleShareClose = () => {
+        setShowShareDialog(false);
+        setselectedCard(null);
+        setShareEmail("");
+    };
+
+    const handleDelete = async () => {
+        if (selectedCard) {
+            try {
+                await axios_instance.delete(`/delete/file/${selectedCard?.fileId?._id}`).then(() => {
+                    fetchAllFiles();
+                    handleDeleteClose();
+                });
+            } catch (error) {
+                console.log(error);
+                alert("Error deleting file!");
+            }
+        }
+    };
+
+    const handleDeleteClose = () => {
+        setShowDeleteWarning(false);
+        setselectedCard(null);
+    };
+
     const handleDownload = async (card) => {
         if (card) {
             try {
@@ -187,12 +227,6 @@ export default function Dashboard() {
         }
 
     }
-
-    const handleShareClose = () => {
-        setShowShareDialog(false);
-        setselectedCard(null);
-        setShareEmail("");
-    };
 
     useEffect( () => {
         if (searchText.length > 0) {
@@ -223,9 +257,6 @@ export default function Dashboard() {
                         </Typography>
                     </Grid>
                     <Grid item>
-                        {/*<Typography variant="h5" marginBottom={2}>*/}
-                        {/*    My Files*/}
-                        {/*</Typography>*/}
                         <Search>
                             <SearchIconWrapper>
                                 <SearchIcon />
@@ -278,17 +309,32 @@ export default function Dashboard() {
                                     <CardActions>
                                         {JSON.parse(localStorage.user)._doc._id ===
                                             card.userId._id && (
-                                                <Button
-                                                    size="small"
-                                                    onClick={() => {
+                                                <>
+                                                    <IconButton color="primary" aria-label="share file" component="label" onClick={() => {
                                                         setShowShareDialog(true);
                                                         setselectedCard(card);
-                                                    }}
-                                                >
-                                                    Share
-                                                </Button>
+                                                    }}>
+                                                        <ShareIcon />
+                                                    </IconButton>
+                                                    <IconButton color="primary" aria-label="delete file" component="label" onClick={() => {
+                                                        setShowDeleteWarning(true);
+                                                        setselectedCard(card);
+                                                    }}>
+                                                        <DeleteIcon />
+                                                    </IconButton>
+                                                    {/* <IconButton color="primary" aria-label="rename file" component="label" onClick={() => {
+                                                        // setShowShareDialog(true);
+                                                        // setselectedCard(card);
+                                                    }}>
+                                                        <EditIcon />
+                                                    </IconButton> */}
+                                                </>
                                             )}
-                                        <Button size="small" onClick={() => handleDownload(card)}>Download</Button>
+                                        <IconButton color="primary" aria-label="download file" component="label" onClick={() => {
+                                            handleDownload(card)
+                                        }}>
+                                            <DownloadIcon />
+                                        </IconButton>
                                     </CardActions>
                                 </Card>
                             </Grid>
@@ -317,7 +363,6 @@ export default function Dashboard() {
                     sx={{
                         padding: 2,
                         fontWeight: "bold",
-                        color: "#1976d2",
                     }}
                 >
                     {"Upload File"}
@@ -347,7 +392,6 @@ export default function Dashboard() {
                     sx={{
                         padding: 2,
                         fontWeight: "bold",
-                        color: "#1976d2",
                     }}
                 >
                     {"Share File"}
@@ -367,6 +411,31 @@ export default function Dashboard() {
                     <Button onClick={handleShareClose}>Close</Button>
                     <Button onClick={handleShare} autoFocus>
                         Share
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={showDeleteWarning}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle
+                    id="alert-dialog-title"
+                >
+                    {"WARNING"}
+                </DialogTitle>
+                <DialogContent sx={{maxWidth:'500px'}} id="alert-dialog-description">
+                    <Typography variant="body2">
+                        Do you want to permanently delete {selectedCard?.fileId?.filename}?
+                    </Typography>
+                    <Typography variant="body2">
+                        All the user's who have access to this file can no longer access the this file.
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleDeleteClose}>Cancel</Button>
+                    <Button onClick={handleDelete} autoFocus>
+                        Delete
                     </Button>
                 </DialogActions>
             </Dialog>

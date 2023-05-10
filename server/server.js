@@ -142,3 +142,37 @@ app.get("/download/file/:fileId", auth, async (req, res) => {
         res.status(400).json({ error: { text: `Unable to download file`, error } });
     }
 });
+
+// Delete a file
+app.delete("/delete/file/:fileId", auth,  async (req, res) => {
+    try {
+        const { fileId } = req.params;
+
+        const fileData = await File.findById(fileId).populate("user", "email");
+
+        if (!fileData) {
+            return res.status(404).json({ message: "File not found" });
+        }
+
+        // Delete all related permissions
+        await Permission.deleteMany({ fileId: fileData._id });
+
+        // Remove the related permissions from the user's permissions array
+        await User.updateMany({ "permissions.fileId": fileData._id }, { $pull: { permissions: { fileId: fileId } } });
+
+
+        // Delete the file document
+        await File.deleteOne({_id:fileData._id});
+
+        const fileBucketId = fileData.fileBucketId;
+        await bucket.delete(new mongoose.Types.ObjectId(fileBucketId));
+
+        return res.status(200).json({ text: "File deleted successfully !" });
+
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({
+            error: { text: `Unable to delete file`, error },
+        });
+    }
+});

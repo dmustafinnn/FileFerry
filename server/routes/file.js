@@ -129,32 +129,32 @@ router.post("/:id/share", auth, async (req, res) => {
 			});
 
 			res.json({ message: "File shared successfully" });
-		}
+		} else {
+			const token = crypto.randomBytes(20).toString("hex");
+			const permission = new Permission({
+				sharedUserId: recipient._id,
+				fileId: file._id,
+				userId: file.user._id,
+				token: token,
+				status: "pending",
+			});
+			await permission.save();
 
-		const token = crypto.randomBytes(20).toString("hex");
-		const permission = new Permission({
-			sharedUserId: recipient._id,
-			fileId: file._id,
-			userId: file.user._id,
-			token: token,
-			status: "pending",
-		});
-		await permission.save();
-
-		const url = `http://localhost:5000/file/${file._id}/permissions/${permission._id}/accept?token=${token}`;
-		const mailOptions = {
-			from: "talon.swift2@ethereal.email",
-			to: recipient.email,
-			subject: `You have been invited to access file ${file.filename}`,
-			html: `
+			const url = `http://localhost:5000/file/${file._id}/permissions/${permission._id}/accept?token=${token}`;
+			const mailOptions = {
+				from: "talon.swift2@ethereal.email",
+				to: recipient.email,
+				subject: `You have been invited to access file ${file.filename}`,
+				html: `
           <p>You have been invited by ${file.user.email} to access file ${file.filename}.</p>
           <p>Please click the following link to accept the invitation:</p>
           <p><a href="${url}">${url}</a></p>
         `,
-		};
-		await transporter.sendMail(mailOptions);
+			};
+			await transporter.sendMail(mailOptions);
 
-		res.json({ message: "File shared successfully" });
+			res.json({ message: "Email sent!" });
+		}
 	} catch (err) {
 		console.error(err);
 		res.status(500).send("Server error");
