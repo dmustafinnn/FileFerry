@@ -1,7 +1,6 @@
-import { Avatar, Button, Grid, Link, Paper, TextField } from "@mui/material";
+import { Button, Grid, Paper, TextField } from "@mui/material";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import React from "react";
 import axios_instance from "../config";
 import { useNavigate } from "react-router-dom";
@@ -81,13 +80,12 @@ const RegistrationPage = () => {
                         alignItems: 'center',
                     }}
                 >
-                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                        <LockOutlinedIcon />
-                    </Avatar>
+                    <img src={'/logo.png'} alt={``}/>
+                    <img src={'/name.png'} alt={``}/>
                     <Typography component="h1" variant="h5">
-                        Sign in
+                        Sign up
                     </Typography>
-                    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+                    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1, maxWidth:'500px' }}>
                         <TextField
                             margin="normal"
                             required
@@ -104,7 +102,6 @@ const RegistrationPage = () => {
                             id="email"
                             label="Email Address"
                             name="email"
-                            autoFocus
                             autoComplete="email"
                         />
                         <TextField
