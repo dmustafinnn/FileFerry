@@ -152,17 +152,6 @@ const Header = () => {
 						</ListItemButton>
 						<ListItemButton
 							component={Link}
-							to="/updatePage"
-							onClick={toggleDrawer}
-							selected={location.pathname === "updatePage"}
-						>
-							<ListItemIcon>
-								<ProfileIcon />
-							</ListItemIcon>
-							<ListItemText primary="Update Profile" />
-						</ListItemButton>
-						<ListItemButton
-							component={Link}
 							to="/signout"
 							onClick={toggleDrawer}
 							selected={location.pathname === "/signout"}
