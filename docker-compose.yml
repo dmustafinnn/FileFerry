@@ -12,7 +12,7 @@ services:
       - ./server/:/usr/api
       - ./server/node_modules/:/usr/api/node_modules
     ports:
-      - "5001:5000"
+      - "5000:5000"
     depends_on:
       - ff-db
     env_file: ./server/.env
