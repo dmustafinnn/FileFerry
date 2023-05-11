@@ -11,15 +11,25 @@ API Documentation: https://documenter.getpostman.com/view/9930451/2s93XyUiBq
 
 ## Project Setup
 1. Make sure you have Docker Desktop installed on your computer.
-2. From the project root directory, run the following command to build the Docker containers:
+2. For the first time, install the packages.
+    ```
+   // from project root
+   cd ./client
+   npm install
+   
+   // from project root
+   cd ./server
+   npm install
+   ```
+3. From the project root directory, run the following command to build the Docker containers:
     ```
     docker-compose build
     ```
-3. After the build is complete, start the Docker containers by running the following command:
+4. After the build is complete, start the Docker containers by running the following command:
     ```
     docker-compose up
     ```
-4. The following table shows the ports used by each container:
+5. The following table shows the ports used by each container:
     | Service | Container Name | Port |
     | ------- | -------------- | ---- |
     | Frontend | fileferry-client | 3000 |
@@ -29,10 +39,16 @@ API Documentation: https://documenter.getpostman.com/view/9930451/2s93XyUiBq
 ## Usage
 Once you have the project set up and running, you can access the FileFerry application by navigating to `http://localhost:3000` in your web browser. From there, you can use the platform to upload, download, and share files with others.
 
-## Milestones
-You can view the latest milestones and their progress here: [FileFerry-Milestones](https://docs.google.com/spreadsheets/d/e/2PACX-1vR92wZZyTgUng5knBInbccaXzKSGQ3wc3oqaCNuSMUT2Qdu1iKcwMNZL-YHT5jovbqIwdHiElc-_sPf/pubhtml?gid=0&single=true)
-- Login page UI and APIs
-- User registeration APIs
-- Securing APIs with auth tokens
-- Dashboard UI
-- APIs to add and delete users from whitelist
+## Current Features
+- Upload files
+- Share files with other registered users
+- Authorization to accept shared files
+- Create a whitelist (users from whom a user can receive files without authorization)
+- Download files owned and shared to a user
+- Delete the files owned by a user
+
+## Upcoming Features
+- View the users who have access to your file
+- Revoke access to a file
+- Rename your files
+- View and update user's profile

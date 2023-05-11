@@ -43,6 +43,7 @@ services:
     volumes:
       - ./client/:/usr/app
       - ./client/node_modules/:/usr/app/node_modules
+      - ./client/public/:/usr/app/public
     environment:
       - CHOKIDAR_USEPOLLING=true # enable hot reloading
     depends_on:

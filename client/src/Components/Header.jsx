@@ -9,10 +9,9 @@ import {
 	ListItemButton,
 	ListItemText,
 	ListItemIcon,
-	Divider,
+	Divider, Button,
 } from "@mui/material";
 import {
-	Menu as MenuIcon,
 	Dashboard as DashboardIcon,
 	AccountCircle as ProfileIcon,
 	ExitToApp as SignOutIcon,
@@ -20,6 +19,7 @@ import {
 import { ListAlt as WhitelistIcon } from "@mui/icons-material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { Link, useLocation } from "react-router-dom";
+import Box from "@mui/material/Box";
 
 const drawerWidth = 240;
 
@@ -52,33 +52,15 @@ const Header = () => {
 				position="fixed"
 				sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
 			>
-				<Toolbar
-					sx={{
-						pr: "24px", // keep right padding when drawer closed
-					}}
-				>
-					<IconButton
-						edge="start"
-						color="inherit"
-						aria-label="menu"
-						onClick={toggleDrawer}
-					>
-						<MenuIcon />
-					</IconButton>
-					<Typography variant="h6">{name}</Typography>
-					{/*{*/}
-					{/*	location.pathname === '/' && (*/}
-					{/*		<Search>*/}
-					{/*			<SearchIconWrapper>*/}
-					{/*				<SearchIcon />*/}
-					{/*			</SearchIconWrapper>*/}
-					{/*			<StyledInputBase*/}
-					{/*				placeholder="Search…"*/}
-					{/*				inputProps={{ "aria-label": "search" }}*/}
-					{/*			/>*/}
-					{/*		</Search>*/}
-					{/*	)*/}
-					{/*}*/}
+				<Toolbar>
+					<Box sx={{maxWidth:'150px', display:'block', mt:'2px', flexGrow: 1}}>
+						<img src={'/logo_name.png'} alt={``} style={{maxWidth: 'inherit'}}/>
+					</Box>
+					<Typography variant="h6" component="div" sx={{ flexGrow: 1 }}/>
+					<Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+						{name}
+					</Typography>
+					<Button color="inherit">Welcome {JSON.parse(localStorage.getItem('user'))._doc.name}</Button>
 				</Toolbar>
 			</AppBar>
 			<Drawer

@@ -9,6 +9,7 @@ import Header from "./Components/Header";
 import isAuthenticated from "./utils/isAuthenticated";
 import RegistrationPage from "./Components/RegistrationPage";
 import Whitelist from "./Components/Whitelist";
+import {createTheme, ThemeProvider} from "@mui/material";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -19,6 +20,17 @@ const PrivateRoute = ({ path, element }) => {
 		<Navigate to="/login" replace state={{ from: path }} />
 	);
 };
+
+const theme = createTheme({
+	palette: {
+		primary: {
+			main: '#206189',
+		},
+		secondary: {
+			main: '#b5e1ee',
+		},
+	},
+});
 
 const AppRoutes = () => {
 	const location = useLocation();
@@ -39,7 +51,9 @@ const AppRoutes = () => {
 root.render(
 	<React.StrictMode>
 		<BrowserRouter>
-			<AppRoutes />
+			<ThemeProvider theme={theme}>
+				<AppRoutes />
+			</ThemeProvider>
 		</BrowserRouter>
 	</React.StrictMode>
 );
