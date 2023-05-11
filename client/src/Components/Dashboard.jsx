@@ -11,6 +11,7 @@ import CardMedia from "@mui/material/CardMedia";
 import Button from "@mui/material/Button";
 import ArticleIcon from "@mui/icons-material/Article";
 import BottomNavigation from "@mui/material/BottomNavigation";
+import Chip from '@mui/material/Chip';
 import axios_instance from "../config";
 import {
     Container,
@@ -107,6 +108,7 @@ export default function Dashboard() {
     const [showUploaddialog, setShowUploadDialog] = useState(false);
     const [showShareDialog, setShowShareDialog] = useState(false);
     const [selectedCard, setselectedCard] = useState(null);
+	const [sharedUserEmails, setSharedUserEmails] = useState([]);
     const [searchText, setSearchText] = useState('');
     const [showDeleteWarning, setShowDeleteWarning] = useState(false);
 
@@ -228,6 +230,23 @@ export default function Dashboard() {
 
     }
 
+    const handleSharedUserDelete = async(user) =>{
+        try {
+            if(selectedCard){
+                //console.log(selectedCard?.fileId?._id);
+                await axios_instance.delete(`/file/${selectedCard?.fileId?._id}/${user?._id}/deleteSharedUser`).then(()=>{
+                    setSharedUserEmails((prevEmails) => prevEmails.filter((x) => x._id !== user._id));
+                });
+            
+            }
+        }
+            
+           catch (error) {
+            console.log(error);
+            alert("Error deleting from Permissions and User");
+        }
+    }
+
     useEffect( () => {
         if (searchText.length > 0) {
             searchFiles();
@@ -313,6 +332,13 @@ export default function Dashboard() {
                                                     <IconButton color="primary" aria-label="share file" component="label" onClick={() => {
                                                         setShowShareDialog(true);
                                                         setselectedCard(card);
+                                                        axios_instance.get(`/file/${card?.fileId?._id}/sharedUsers`).then((response) => {
+                                                            // setSharedUserEmails(data);
+                                                            console.log(response.data.sharedUserEmails);
+                                                            if (response.data.sharedUserEmails){
+                                                                setSharedUserEmails(response.data.sharedUserEmails);
+                                                            }
+                                                        });
                                                     }}>
                                                         <ShareIcon />
                                                     </IconButton>
@@ -387,7 +413,7 @@ export default function Dashboard() {
                 </DialogActions>
             </Dialog>
 
-            <Dialog open={showShareDialog} sx={{ textAlign: "center" }}>
+            <Dialog open={showShareDialog} sx={{ width: '4100%', textAlign: "center" , maxWidth: '450px', marginLeft: 'auto', marginRight: 'auto'}}>
                 <DialogTitle
                     sx={{
                         padding: 2,
@@ -406,6 +432,19 @@ export default function Dashboard() {
                             setShareEmail(event.target.value);
                         }}
                     />
+					{sharedUserEmails.length === 0 ? (
+							<p>No shared users found.</p>
+						) : (
+							<ul>
+							{sharedUserEmails.map((user) => (
+								
+								
+								<Chip key={user._id} label={user?.email} variant="outlined" onDelete={() => handleSharedUserDelete(user)} ></Chip> 
+								// <div key={user._id}>
+								// </div>
+							))}
+							</ul>
+						)}	
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleShareClose}>Close</Button>

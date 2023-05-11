@@ -63,6 +63,54 @@ router.post("/upload", auth, upload.single("file"), async (req, res) => {
 		});
 	}
 });
+//Delete shared user
+router.delete("/:fileId/:sharedUserId/deleteSharedUser", auth, async (req, res) => {
+	try {
+		const userPermission = await Permission.find({fileId: req.params.fileId,
+			userId: req.user.id,
+			sharedUserId: req.params.sharedUserId})
+			.where("permissions.status")
+			.in(["accepted"])
+			.catch((err) => res.status(500).json({ message: err.message }));
+
+
+		if(userPermission){
+			await Permission.deleteOne({
+				fileId: req.params.fileId,
+				sharedUserId: req.params.sharedUserId,
+				userId: req.user.id,
+			  }).then(result => {
+				console.log(result);
+				// res.status(200).send("Permission deleted successfully");
+			  })
+			  .catch(err => {
+				console.error(err);
+				res.status(500).send("Error deleting permission");
+			  });
+
+			  await User.updateOne({ 
+				$and: [
+				  { _id: req.params.sharedUserId }, // add this condition to check if the user id matches
+				  { "permissions.fileId": req.params.fileId }
+				]
+			  }, { $pull: { permissions: { fileId: req.params.fileId } } }).then(result => {
+				console.log(result);
+				// res.status(200).send("Permission deleted from User successfully");
+			  })
+			  .catch(err => {
+				console.error(err);
+				res.status(500).send("Error deleting permission from User");
+			  });;
+			
+			console.log("DELETE")
+		}
+		res.status(200).send("Access revoked");
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ message: error.message });
+	}
+
+});
 
 // Get all files of a user
 router.get("/", auth, async (req, res) => {
@@ -78,6 +126,24 @@ router.get("/", auth, async (req, res) => {
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({ message: err.message });
+	}
+});
+
+//Get past shared users to display in modal
+router.get("/:fileId/sharedUsers", auth, async (req, res) => {
+	try {
+		
+		const permissions = await Permission.find({ fileId: req.params.fileId, status: 'accepted' }).populate("sharedUserId", "email");
+		console.log(permissions);
+        const sharedUserEmails = [];
+        for (const permission of permissions) {
+            sharedUserEmails.push(permission.sharedUserId);
+        }
+        res.json({ sharedUserEmails });
+	}
+	catch (err) {
+		console.error(err);
+		res.status(500).send("Server error");
 	}
 });
 
@@ -164,6 +230,7 @@ router.post("/:id/share", auth, async (req, res) => {
 // Endpoint for accepting a shared file permission
 router.get("/:fileId/permissions/:permissionId/accept", async (req, res) => {
 	try {
+		
 		const permission = await Permission.findById(req.params.permissionId)
 			.populate({ path: "sharedUserId", select: "email" })
 			.populate({ path: "fileId", select: "filename" });
