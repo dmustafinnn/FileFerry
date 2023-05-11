@@ -23,7 +23,7 @@ router.post("/register", (req, res) => {
 			newUser
 				.save()
 				.then((user) => res.status(201).json(user))
-				.catch((err) => res.status(500).json({ message: err.message }));
+				.catch((err) => res.status(500).json({ error: err.message }));
 		});
 	});
 });

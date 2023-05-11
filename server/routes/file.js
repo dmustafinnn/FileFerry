@@ -55,12 +55,9 @@ router.post("/upload", auth, upload.single("file"), async (req, res) => {
 			},
 		});
 
-		res.status(201).json({ success: true });
+		return res.status(201).json({ success: true });
 	} catch (error) {
-		res.status(500).json({
-			success: false,
-			error,
-		});
+		return res.status(500).json({error: "Unable to upload!"});
 	}
 });
 
@@ -72,12 +69,12 @@ router.get("/", auth, async (req, res) => {
 			.in(["own", "accepted"])
 			.populate("permissions.fileId", "filename createdAt length")
 			.populate("permissions.userId", "username")
-			.catch((err) => res.status(500).json({ message: err.message }));
+			.catch((err) => res.status(500).json({error: "Server error"}));
 		const files = userFiles?.permissions;
-		res.json({ files });
+		return res.json({ files });
 	} catch (error) {
 		console.log(error);
-		res.status(500).json({ message: err.message });
+		return res.status(500).json({error: "Error fetching files!"});
 	}
 });
 
@@ -88,18 +85,18 @@ router.post("/:id/share", auth, async (req, res) => {
 		const file = await File.findById(req.params.id).populate("user", "email");
 
 		if (!file) {
-			return res.status(404).json({ message: "File not found" });
+			return res.status(404).json({ error: "File not found" });
 		}
 		if (file.user._id.toString() !== req.user.id) {
 			return res
 				.status(401)
-				.json({ message: "You do not have permission to share this file" });
+				.json({ error: "You do not have permission to share this file" });
 		}
 
 		const recipient = await User.findOne({ email: req.body.email });
 		if (!recipient) {
 			console.log("Recipient Not found")
-			return res.status(404).json({ message: "Recipient not found" });
+			return res.status(404).json({ error: "Recipient not found" });
 		}
 		const existingPermission = await Permission.findOne({
 			sharedUserId: recipient._id,
@@ -109,7 +106,7 @@ router.post("/:id/share", auth, async (req, res) => {
 		if (existingPermission) {
 			return res
 				.status(400)
-				.json({ message: "File already shared with this user" });
+				.json({ error: "File already shared with this user" });
 		}
 
 		// sender is registered as a whitelisted user
@@ -128,7 +125,7 @@ router.post("/:id/share", auth, async (req, res) => {
 				},
 			});
 
-			res.json({ message: "File shared successfully" });
+			return res.json({ message: "File shared successfully" });
 		} else {
 			const token = crypto.randomBytes(20).toString("hex");
 			const permission = new Permission({
@@ -153,11 +150,11 @@ router.post("/:id/share", auth, async (req, res) => {
 			};
 			await transporter.sendMail(mailOptions);
 
-			res.json({ message: "Email sent!" });
+			return res.json({ message: "Email sent!" });
 		}
 	} catch (err) {
 		console.error(err);
-		res.status(500).send("Server error");
+		return res.status(500).json({error: `Unable to share file`});
 	}
 });
 
@@ -169,7 +166,7 @@ router.get("/:fileId/permissions/:permissionId/accept", async (req, res) => {
 			.populate({ path: "fileId", select: "filename" });
 
 		if (!permission || permission.token !== req.query.token) {
-			return res.status(404).json({ message: "Permission not found" });
+			return res.status(404).json({ error: "Permission not found" });
 		}
 
 		permission.status = "accepted";
@@ -181,13 +178,13 @@ router.get("/:fileId/permissions/:permissionId/accept", async (req, res) => {
 			},
 		});
 
-		res.send(`
+		return res.send(`
             <h1>File permission accepted</h1>
             <p>You have successfully accepted permission to access file ${permission.fileId.filename}.</p>
         `);
 	} catch (err) {
 		console.error(err);
-		res.status(500).send("Server error");
+		res.status(500).json({error: `Unable to accept shared file`});
 	}
 });
 
@@ -200,7 +197,7 @@ router.get('/search', auth, async (req, res) => {
 			.in(["own", "accepted"])
 			.populate("permissions.fileId", "filename createdAt length")
 			.populate("permissions.userId", "username")
-			.catch((err) => res.status(500).json({ message: err.message }));
+			.catch((err) => res.status(500).json({error: "Server error"}));
 
 		let files = userFiles?.permissions;
 
@@ -211,10 +208,10 @@ router.get('/search', auth, async (req, res) => {
 			});
 		}
 
-		res.json({ files });
+		return res.json({ files });
 	} catch (error) {
 		console.log(error);
-		res.status(500).json({ message: err.message });
+		return res.status(500).json({error: `Unable to search for file`});
 	}
 });
 

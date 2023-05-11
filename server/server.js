@@ -99,7 +99,7 @@ app.get("/download/file/:fileId", auth, async (req, res) => {
         const fileData = await File.findById(fileId).populate("user", "email");
 
         if (!fileData) {
-            return res.status(404).json({ message: "File not found" });
+            return res.status(404).json({ error: "File not found" });
         }
 
         // check if the logged in user has permission to download the file
@@ -113,7 +113,7 @@ app.get("/download/file/:fileId", auth, async (req, res) => {
         if(!permission || permission.length === 0){
             return res
                 .status(401)
-                .json({ message: "You do not have permission to download this file" });
+                .json({ error: "You do not have permission to download this file" });
         }
 
         const fileBucketId = fileData.fileBucketId;
@@ -123,7 +123,7 @@ app.get("/download/file/:fileId", auth, async (req, res) => {
             .find({ _id: new mongoose.Types.ObjectId(fileBucketId) })
             .toArray();
         if (file.length === 0) {
-            return res.status(404).json({ error: { text: "File not found" } });
+            return res.status(404).json({ error: "File not found" });
         }
 
         // set the headers
@@ -139,7 +139,7 @@ app.get("/download/file/:fileId", auth, async (req, res) => {
         downloadStream.pipe(res);
     } catch (error) {
         console.log(error);
-        res.status(400).json({ error: { text: `Unable to download file`, error } });
+        res.status(500).json({error: `Unable to download file`});
     }
 });
 
@@ -151,7 +151,16 @@ app.delete("/delete/file/:fileId", auth,  async (req, res) => {
         const fileData = await File.findById(fileId).populate("user", "email");
 
         if (!fileData) {
-            return res.status(404).json({ message: "File not found" });
+            return res.status(404).json({ error: "File not found" });
+        }
+
+        // check if the logged in user has permission to download the file
+        let permission = await Permission.find({fileId:fileData._id, userId:req.user.id}).where("status").in(["own"]);
+
+        if(!permission || permission.length === 0){
+            return res
+                .status(401)
+                .json({ error: "You do not have permission to delete this file" });
         }
 
         // Delete all related permissions
@@ -167,12 +176,10 @@ app.delete("/delete/file/:fileId", auth,  async (req, res) => {
         const fileBucketId = fileData.fileBucketId;
         await bucket.delete(new mongoose.Types.ObjectId(fileBucketId));
 
-        return res.status(200).json({ text: "File deleted successfully !" });
+        return res.status(200).json({ message: "File deleted successfully !" });
 
     } catch (error) {
         console.log(error);
-        res.status(400).json({
-            error: { text: `Unable to delete file`, error },
-        });
+        res.status(500).json({error: "Unable to delete the file"});
     }
 });
