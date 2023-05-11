@@ -27,7 +27,6 @@ const pathNames = {
 	"/": "Dashboard",
 	"/whitelist": "Whitelist",
 	"/profile": "Profile",
-	"/update": "Update Profile",
 	"/signout": "Signout",
 };
 

@@ -112,6 +112,8 @@ const RegistrationPage = () => {
                             type="password"
                             id="password"
                             autoComplete="new-password"
+                            value={password}
+                            onChange={handlePasswordChange}
                         />
                         <TextField
                             margin="normal"
@@ -121,6 +123,8 @@ const RegistrationPage = () => {
                             label="Confirm Password"
                             type="password"
                             id="confirmPassword"
+                            value={confirmPassword}
+                            onChange={handleConfirmPasswordChange}
                         />
                         <Button type="submit" 
                         variant="contained"
