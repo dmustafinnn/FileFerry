@@ -1,61 +1,37 @@
-import { Button, Grid, Paper, TextField } from "@mui/material";
+import { Avatar, Button, Grid, Link, Paper, TextField } from "@mui/material";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import React from "react";
 import axios_instance from "../config";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import {enqueueSnackbar} from "notistack";
 
 
-
-
-const RegistrationPage = () => {
+const UpdatePage = ({ userId }) => {
     const navigate = useNavigate();
 
-     // Define state variables for password and confirm password fields
-     const [password, setPassword] = useState('');
-     const [confirmPassword, setConfirmPassword] = useState('');
-     const [validPassword, setValidPassword] = useState(false);
- 
-    const handleSubmit = async (event) => {
+    const handleNameChange = (event) => {
+        setName(event.target.value);
+      };
+    
+      const handleEmailChange = (event) => {
+        setEmail(event.target.value);
+      };
+
+
+      const handleUpdateUser = async (event) => {
         event.preventDefault();
-        validatePassword();
-        console.log(validPassword)
-        // password === confirmPassword
-        if(password === confirmPassword) {
-            const data = new FormData(event.currentTarget);
-            axios_instance.post('/auth/register', {
-                username: data.get('email'),
-                name: data.get('name'),
-                email: data.get('email'),
-                password: data.get('password')
-            }).then(response => {
-                navigate('/login');
-                enqueueSnackbar('Registered successfully!',  { variant: 'success' });
-            }).catch((error) => {
-                console.log(error)
-                enqueueSnackbar('User already exists with same email',  { variant: 'error' });
-            });
+        try {
+          const response = await axios.put(`/users/${userId}`, { username, name, email, password});
+          console.log(response.data); // log updated user data
+        } catch (error) {
+          console.error(error);
         }
     };
 
-    // Define event handlers for password and confirm password fields
-    const handlePasswordChange = (e) => {
-        setPassword(e.target.value);
-    };
 
-    const handleConfirmPasswordChange = (e) => {
-        setConfirmPassword(e.target.value);
-    };
-
-    // Define function to validate the confirm password field
-    const validatePassword = () => {
-        setValidPassword(password === confirmPassword);
-    };
-
-
-    return (
+  return (
         <Grid container component="main" sx={{ height: '100vh', padding: 0 }}>
             <Grid
                 item
@@ -81,12 +57,13 @@ const RegistrationPage = () => {
                         alignItems: 'center',
                     }}
                 >
-                    <img src={'/logo.png'} alt={``} style={{maxWidth: '100px'}}/>
-                    <img src={'/name.png'} alt={``} style={{maxWidth: '150px'}}/>
+                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                        <LockOutlinedIcon />
+                    </Avatar>
                     <Typography component="h1" variant="h5">
-                        Sign up
+                        Update Information
                     </Typography>
-                    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1, maxWidth:'500px' }}>
+                    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
                         <TextField
                             margin="normal"
                             required
@@ -103,6 +80,7 @@ const RegistrationPage = () => {
                             id="email"
                             label="Email Address"
                             name="email"
+                            autoFocus
                             autoComplete="email"
                         />
                         <TextField
@@ -110,42 +88,32 @@ const RegistrationPage = () => {
                             required
                             fullWidth
                             name="password"
-                            label="Password"
+                            label="New Password"
                             type="password"
                             id="password"
                             autoComplete="new-password"
-                            value={password}
-                            onChange={handlePasswordChange}
                         />
                         <TextField
                             margin="normal"
                             required
                             fullWidth
                             name="conformPassword"
-                            label="Confirm Password"
+                            label="Confirm New Password"
                             type="password"
                             id="confirmPassword"
-                            value={confirmPassword}
-                            onChange={handleConfirmPasswordChange}
                         />
                         <Button type="submit" 
                         variant="contained"
                             sx={{ mt: 3, mb: 2 }}>
-                            Sign Up
+                            Update Information
                         </Button>
                         <Grid container>
-                            <Grid item>
-                                <Button variant="text"
-                                onClick={()  => {
-                                    navigate("/login")
-                                }}>Already have an account? Sign in</Button>
-                            </Grid>
                         </Grid>
                     </Box>
                 </Box>
             </Grid>
         </Grid>
-    );
-};
+  );
+}
 
-export default RegistrationPage;
+export default UpdatePage;

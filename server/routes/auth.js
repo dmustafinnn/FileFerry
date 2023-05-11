@@ -35,6 +35,10 @@ router.post("/login", passport.authenticate("local"), (req, res) => {
 	res.status(200).json({ ...req.user, success: true, token: token });
 });
 
+
+module.exports = router;
+
+
 router.get("/", (req, res) => {
 	res.status(200).json({ test: "test" });
 });

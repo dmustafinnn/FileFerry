@@ -5,19 +5,30 @@ const User = require("../models/User");
 
 // TODO: change the apis to validate tokens
 
-// Get all users
-router.get("/", (req, res) => {
-    User.find()
-        .then((users) => res.json(users))
+router.get("/", authenticateToken, (req, res) => {
+    User.findById(req.user.id)
+        .then((user) => res.json(user))
         .catch((err) => res.status(500).json({error: "Server error"}));
 });
 
 // Update a user
-router.patch("/:id", (req, res) => {
-    User.findByIdAndUpdate(req.params.id, req.body, {new: true})
-        .then((user) => res.json(user))
-        .catch((err) => res.status(500).json({error: "Server error"}));
-});
+router.put('/:id', async (req, res) => {
+    const userId = req.params.id;
+    const updates = req.body;
+    try {
+      // Find user by id and update with new data
+      const user = await User.findByIdAndUpdate(userId, updates, { new: true });
+      if (!user) {
+        return res.status(404).send({ error: 'User not found' });
+      }
+      res.send(user);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ error: 'Server error' });
+    }
+  });
+
+
 
 // Delete a user
 router.delete("/:id", (req, res) => {
