@@ -5,11 +5,10 @@ const User = require("../models/User");
 
 // TODO: change the apis to validate tokens
 
-// Get all users
-router.get("/", (req, res) => {
-    User.find()
-        .then((users) => res.json(users))
-        .catch((err) => res.status(500).json({message: err.message}));
+router.get("/", authenticateToken, (req, res) => {
+    User.findById(req.user.id)
+        .then((user) => res.json(user))
+        .catch((err) => res.status(500).json({error: "Server error"}));
 });
 
 // Update a user
@@ -28,6 +27,8 @@ router.put('/:id', async (req, res) => {
       res.status(500).send({ error: 'Server error' });
     }
   });
+
+
 
 // Delete a user
 router.delete("/:id", (req, res) => {

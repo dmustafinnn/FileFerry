@@ -9,6 +9,7 @@ import Header from "./Components/Header";
 import isAuthenticated from "./utils/isAuthenticated";
 import RegistrationPage from "./Components/RegistrationPage";
 import Whitelist from "./Components/Whitelist";
+import Profile from "./Components/Profile";
 import {createTheme, ThemeProvider} from "@mui/material";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
@@ -43,6 +44,7 @@ const AppRoutes = () => {
 				<Route path="/" element={<PrivateRoute element={<Dashboard />} />} />
 				<Route path="/registration" element={<RegistrationPage />} />
 				<Route path="/whitelist" element={<PrivateRoute element={<Whitelist />} />} />
+				<Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
 			</Routes >
 		</>
 	)
