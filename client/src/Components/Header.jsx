@@ -18,7 +18,7 @@ import {
 } from "@mui/icons-material";
 import { ListAlt as WhitelistIcon } from "@mui/icons-material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import { Link, useLocation } from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import Box from "@mui/material/Box";
 
 const drawerWidth = 240;
@@ -34,6 +34,7 @@ const Header = () => {
 	const [drawerOpen, setDrawerOpen] = useState(false);
 	const [name, setName] = useState("");
 	const location = useLocation();
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (location.pathname) {
@@ -133,9 +134,9 @@ const Header = () => {
 						</ListItemButton>
 						<ListItemButton
 							component={Link}
-							to="/signout"
-							onClick={toggleDrawer}
-							selected={location.pathname === "/signout"}
+							to="/login"
+							onClick={() => {navigate('/login')}}
+							selected={location.pathname === "/login"}
 						>
 							<ListItemIcon>
 								<SignOutIcon />

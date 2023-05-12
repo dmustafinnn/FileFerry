@@ -48,6 +48,7 @@ const baseStyle = {
     color: "#bdbdbd",
     outline: "none",
     transition: "border .24s ease-in-out",
+    width: "400px",
 };
 
 const focusedStyle = {
@@ -479,7 +480,7 @@ export default function Dashboard() {
                 >
                     {"WARNING"}
                 </DialogTitle>
-                <DialogContent sx={{maxWidth:'500px'}} id="alert-dialog-description">
+                <DialogContent sx={{width:'300px'}} id="alert-dialog-description">
                     <Typography variant="body2">
                         Do you want to permanently delete {selectedCard?.fileId?.filename}?
                     </Typography>
