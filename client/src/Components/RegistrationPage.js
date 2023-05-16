@@ -5,6 +5,7 @@ import React from "react";
 import axios_instance from "../config";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import {enqueueSnackbar} from "notistack";
 
 
 
@@ -17,7 +18,7 @@ const RegistrationPage = () => {
      const [confirmPassword, setConfirmPassword] = useState('');
      const [validPassword, setValidPassword] = useState(false);
  
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         validatePassword();
         console.log(validPassword)
@@ -30,11 +31,12 @@ const RegistrationPage = () => {
                 email: data.get('email'),
                 password: data.get('password')
             }).then(response => {
-                if(response.data.success === true){
-                    navigate('/dashboard');
-                    localStorage.setItem('user',JSON.stringify(response.data));
-                }
-            })
+                navigate('/login');
+                enqueueSnackbar('Registered successfully!',  { variant: 'success' });
+            }).catch((error) => {
+                console.log(error)
+                enqueueSnackbar('User already exists with same email',  { variant: 'error' });
+            });
         }
     };
 

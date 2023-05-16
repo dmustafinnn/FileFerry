@@ -4,6 +4,7 @@ import Typography from "@mui/material/Typography";
 import React, { useEffect } from "react";
 import axios_instance from "../config";
 import { useNavigate } from "react-router-dom";
+import {enqueueSnackbar} from "notistack";
 
 // Login Page is written using MUI open source template
 // https://github.com/mui/material-ui/blob/v5.11.15/docs/data/material/getting-started/templates/sign-in-side/SignInSide.js
@@ -28,7 +29,10 @@ const LoginPage = () => {
 					navigate("/");
 					localStorage.setItem("token", response.data.token);
 					localStorage.setItem("user", JSON.stringify(response.data));
+					enqueueSnackbar('Welcome!',  { variant: 'success' });
 				}
+			}).catch(reason => {
+				enqueueSnackbar('Invalid login credentials',  { variant: 'error' })
 			});
 	};
 

@@ -11,6 +11,7 @@ import RegistrationPage from "./Components/RegistrationPage";
 import Whitelist from "./Components/Whitelist";
 import Profile from "./Components/Profile";
 import {createTheme, ThemeProvider} from "@mui/material";
+import {SnackbarProvider} from "notistack";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -52,11 +53,13 @@ const AppRoutes = () => {
 
 root.render(
 	<React.StrictMode>
-		<BrowserRouter>
-			<ThemeProvider theme={theme}>
-				<AppRoutes />
-			</ThemeProvider>
-		</BrowserRouter>
+		<SnackbarProvider>
+			<BrowserRouter>
+				<ThemeProvider theme={theme}>
+					<AppRoutes />
+				</ThemeProvider>
+			</BrowserRouter>
+		</SnackbarProvider>
 	</React.StrictMode>
 );
 

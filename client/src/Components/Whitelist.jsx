@@ -23,6 +23,7 @@ import Tooltip from '@mui/material/Tooltip';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import { useState } from "react";
+import {enqueueSnackbar} from "notistack";
 
 function descendingComparator(a, b, orderBy) {
 	if (b[orderBy] < a[orderBy]) {
@@ -268,14 +269,21 @@ const WhiteListTable = (props) => {
 
 	const handleDelete = () => {
 		console.log(selected);
-		axios_instance.post("/users/whitelist/delete", {
-			ids: selected
-		}).then((response) => {
-			const data = response.data;
-			if (data.user && data.user.whitelist)
-				setWhiteListUsers(data.user.whitelist);
-			setSelected([]);
-		});
+		try {
+			axios_instance.post("/users/whitelist/delete", {
+				ids: selected
+			}).then((response) => {
+				const data = response.data;
+				if (data.user && data.user.whitelist)
+					setWhiteListUsers(data.user.whitelist);
+				setSelected([]);
+				enqueueSnackbar('User(s) deleted from whitelist!',  { variant: 'success' });
+			}).catch((error) => {
+				enqueueSnackbar(error.response.data.error,  { variant: 'error' });
+			});
+		} catch (error) {
+			enqueueSnackbar('Error deleting some/all users',  { variant: 'error' })
+		}
 	}
 
 	const handleAdd = async () => {
@@ -288,10 +296,13 @@ const WhiteListTable = (props) => {
 					if (data.user && data.user.whitelist)
 						setWhiteListUsers(data.user.whitelist);
 					handleAddClose();
+					enqueueSnackbar('User added to whitelist!',  { variant: 'success' });
+				}).catch((error) => {
+					enqueueSnackbar(error.response.data.error,  { variant: 'error' });
 				});
 			} catch (error) {
 				console.log(error);
-				alert("Error adding user to whitelist!");
+				enqueueSnackbar('Error adding user to whitelist!',  { variant: 'error' });
 			}
 		}
 	};

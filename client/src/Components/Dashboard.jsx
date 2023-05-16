@@ -32,6 +32,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import DownloadIcon from '@mui/icons-material/Download';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import {enqueueSnackbar} from "notistack";
 
 const baseStyle = {
     flex: 1,
@@ -47,6 +48,7 @@ const baseStyle = {
     color: "#bdbdbd",
     outline: "none",
     transition: "border .24s ease-in-out",
+    width: "400px",
 };
 
 const focusedStyle = {
@@ -155,11 +157,16 @@ export default function Dashboard() {
         formData.append("file", acceptedFiles[0]);
 
         try {
-            await axios_instance.post("/file/upload", formData);
-            handleUploadClose();
+            enqueueSnackbar('Uploading...',  { variant: 'info' });
+            await axios_instance.post("/file/upload", formData).then(() => {
+                enqueueSnackbar('File uploaded!',  { variant: 'success' });
+                handleUploadClose();
+            }).catch((error) => {
+                enqueueSnackbar(error.response.data.error,  { variant: 'error' });
+            });
         } catch (error) {
             console.log(error);
-            alert("Error uploading file!");
+            enqueueSnackbar('Error uploading file!',  { variant: 'error' });
         }
     };
 
@@ -176,11 +183,14 @@ export default function Dashboard() {
             try {
                 await axios_instance.post(`/file/${selectedCard?.fileId?._id}/share`, {
                     email: shareEmail
+                }).then(() => {
+                    enqueueSnackbar('File shared successfully!',  { variant: 'success' });
+                    handleShareClose();
+                }).catch((error) => {
+                    enqueueSnackbar(error.response.data.error,  { variant: 'error' });
                 });
-                handleShareClose();
             } catch (error) {
-                console.log(error);
-                alert("Error uploading file!");
+                enqueueSnackbar('Error sharing file!',  { variant: 'error' });
             }
         }
     };
@@ -197,10 +207,13 @@ export default function Dashboard() {
                 await axios_instance.delete(`/delete/file/${selectedCard?.fileId?._id}`).then(() => {
                     fetchAllFiles();
                     handleDeleteClose();
+                    enqueueSnackbar('File deleted!',  { variant: 'success' });
                 });
             } catch (error) {
                 console.log(error);
-                alert("Error deleting file!");
+                // alert("Error deleting file!");
+                enqueueSnackbar('Error deleting file!',  { variant: 'error' });
+
             }
         }
     };
@@ -222,9 +235,13 @@ export default function Dashboard() {
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
                 document.body.removeChild(downloadLink);
+                enqueueSnackbar('Download complete!',  { variant: 'success' });
+
             } catch (error) {
                 console.log(error);
-                alert("Error downloading file!");
+                // alert("Error downloading file!");
+                enqueueSnackbar('Error downloading file!',  { variant: 'error' });
+
             }
         }
 
@@ -262,7 +279,7 @@ export default function Dashboard() {
             });
         } catch (error) {
             console.log(error);
-            alert("Error downloading file!");
+            enqueueSnackbar('Error searching for files!',  { variant: 'error' });
         }
     }
 
@@ -463,7 +480,7 @@ export default function Dashboard() {
                 >
                     {"WARNING"}
                 </DialogTitle>
-                <DialogContent sx={{maxWidth:'500px'}} id="alert-dialog-description">
+                <DialogContent sx={{width:'300px'}} id="alert-dialog-description">
                     <Typography variant="body2">
                         Do you want to permanently delete {selectedCard?.fileId?.filename}?
                     </Typography>
