@@ -21,6 +21,11 @@ API Documentation: https://documenter.getpostman.com/view/9930451/2s93XyUiBq
    cd ./server
    npm install
    ```
+3. Create a `.env` file in the server directory and enter the following variables.
+    ```
+    ATLAS_DB=                   // link to the mongodb atlas cluster
+    JWT_SECRET=
+    ```
 3. From the project root directory, run the following command to build the Docker containers:
     ```
     docker-compose build
@@ -46,9 +51,8 @@ Once you have the project set up and running, you can access the FileFerry appli
 - Create a whitelist (users from whom a user can receive files without authorization)
 - Download files owned and shared to a user
 - Delete the files owned by a user
-
-## Upcoming Features
 - View the users who have access to your file
 - Revoke access to a file
+## Upcoming Features
 - Rename your files
 - View and update user's profile
