@@ -60,6 +60,7 @@ router.post("/upload", auth, upload.single("file"), async (req, res) => {
 		return res.status(500).json({error: "Unable to upload!"});
 	}
 });
+
 //Delete shared user
 router.delete("/:fileId/:sharedUserId/deleteSharedUser", auth, async (req, res) => {
 	try {
@@ -126,7 +127,7 @@ router.get("/", auth, async (req, res) => {
 	}
 });
 
-//Get past shared users to display in modal
+//Get users who have access to a file
 router.get("/:fileId/sharedUsers", auth, async (req, res) => {
 	try {
 		

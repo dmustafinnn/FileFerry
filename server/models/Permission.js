@@ -4,16 +4,19 @@ const permissionSchema = new mongoose.Schema({
     fileId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'File',
-        required: true
+        required: true,
+        index: true
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: true,
+        index: true
     },
     sharedUserId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
+        index: true
     },
     token: {
         type: String
